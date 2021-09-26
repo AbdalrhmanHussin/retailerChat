@@ -11,7 +11,7 @@
     <link href="{{ secure_asset('css/generals.css') }}" rel="stylesheet">
     
 </head>
-<body>
+
 <body class="antialiased">
     <div id="app">
         <app-component></app-component>
