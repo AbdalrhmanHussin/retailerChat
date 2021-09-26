@@ -8,7 +8,7 @@
     <title>Retailer</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
-    <link href="{{ secure_asset('css/generals.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/generals.css') }}" rel="stylesheet">
     
 </head>
 
