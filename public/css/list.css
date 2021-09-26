@@ -1,0 +1,137 @@
+/*list*/
+.userlist {
+    width: 30%;
+    min-height: 100vh;
+    height: auto;
+    background: var(--list);
+    transition: all .4s ease-in-out;
+}
+
+.userlist .search {
+    padding: 9px 0 9px 37px;
+    background: var(--SecColor);
+    border: navajowhite;
+}
+
+.userlist .search:focus,
+.userlist .search:active {
+    outline: none;
+    color: var(--white);
+}
+
+.userlist .search::-webkit-input-placeholder {
+    color: var(--silver);
+}
+
+.userlist .list {
+    cursor: pointer;
+}
+.userlist .user-load,
+.userlist .list .user {
+    padding: 5px;
+    transition: all .4s ease-in-out;
+}
+
+.userlist .list .user.active {
+    background: var(--SecColor);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px 0 10px 10px;
+}
+
+.userlist .list .user img {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+}
+
+.room .user-info .status,
+.userlist .list .user .status{
+    width: 11px;
+    height: 12px;
+    display: block;
+    background: var(--green);
+    border-radius: 50%;
+    top: 24px;
+    left: 71%;
+    border: 3px solid var(--list);
+}
+.room .user-info .status.danger,
+.userlist .list .user .status.danger {
+    background-color: var(--red) !important;
+}
+.room .user-info .status.offline,
+.userlist .list .user .status.offline {
+    background-color: var(--silver);
+}
+
+.room .user-info .status.busy,
+.userlist .list .user .status.busy {
+    background-color: var(--yellow);
+}
+
+
+.user-list-loaded {
+    overflow: scroll;
+    height:76vh;
+
+}
+
+.user-list-loaded::-webkit-scrollbar {
+  width: 0;
+}
+
+
+.user-load .load-img {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--SecColor);
+    animation: loadUser 1.3s ease-in-out  infinite alternate;
+}
+
+.user-load .load-info .load-name {
+    width: 200px;
+    height: 10px;
+    background: var(--borderColor);
+    margin-top: 5px;
+    margin-left: 10px;
+    animation: loadUser 1.3s ease-in-out  infinite alternate;
+}
+
+.user-load .load-info .load-mssg {
+    width: 100px;
+    height: 10px;
+    background: var(--SecColor);
+    margin-top: 5px;
+    margin-left: 10px;
+    animation: loadUser 1.3s ease-in-out  infinite alternate;
+}
+
+@keyframes loadUser {
+    0% {
+        background: var(--SecColor);
+    }
+
+    50% {
+        background: var(--load)
+    }
+
+    100% {
+        background: var(--SecColor);
+    }
+}
+
+
+/*Media Query*/
+
+@media screen and (max-width:992px) {
+    .userlist {
+        width: 100%;
+    }
+    .user-list-loaded {
+        height: 64vh;
+        margin-bottom: 75px;
+    }
+}

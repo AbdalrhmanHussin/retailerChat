@@ -1,0 +1,106 @@
+.auth {
+    height: 100vh;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+}
+
+.auth .overlay {
+    background-color: #0008;
+}
+
+.auth .logo img {
+    width: 69px;
+}
+
+.auth .form label {
+    color: var(--bs-body-bg);
+    font-size: 13px;
+    padding: 15px 10px;
+    top: 3px;
+    transition: all .3s linear;
+}
+
+.auth .form input.form-control {
+    background: var(--SecColor);
+    border: none;
+    font-size: 12px;
+    padding: 19px 10px;
+    color: var(--white);
+}
+
+.auth .form  label.active {
+    color: var(--logo);
+    font-size: 11px;
+    top: -12px;
+}
+.auth input[type="checkbox"]:before {
+    content: '';
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    position: absolute;
+    border: solid var(--white);
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+    z-index: 9;  
+}
+.auth .remember ~ label {
+    font-size: 11px !important;
+}
+.auth input[type="checkbox"]:after {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: var(--SecColor);
+    content: '';
+}
+
+.auth input[type="checkbox"]:checked::before {
+   display: none;
+}
+
+.auth a {
+    text-decoration: none;
+}
+
+.auth a:hover {
+    text-decoration: none;
+    color: var(--silver);
+}
+
+.auth .social-btns .facebook {
+    padding: 7px;
+    border-radius: 4px;
+    background-color: var(--facebook);
+}
+
+.auth .social-btns .google {
+    padding: 7px;
+    border-radius: 4px;
+    background-color: var(--google);
+    color: black;
+}
+
+.auth .social-btns .google p {
+    color: var(--black);
+}
+
+.auth .form-btn {
+    border: none;
+    background: var(--bat-color);
+    color: var(--white);
+    font-size: 12px;
+    padding: 10px;
+    transition: all .3s linear;
+}
+
+.auth .form-btn:hover {
+    background-color: var(--bs-gray);
+}
+/* input.remember:before {
+    content: '';
+    width: 20px;
+} */

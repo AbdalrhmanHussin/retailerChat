@@ -1,0 +1,256 @@
+/* v.1.0.5*/
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url(media.css);
+@import url(sidemenu.css);
+@import url(list.css);
+@import url(room.css);
+@import url(loader.css);
+@import url(auth.css);
+:root {
+--BodyColor: #262e35;
+--SecColor: #36404a;
+--logo: #7269ef;
+--load: #36404a8c;
+--list: #303841;
+--text: #a6b0cf;
+--bat-color: #1f1f1f;
+--white: #fff;
+--silver: #ccc;
+--whity-silver: #717070;
+--dark-silver: #333;
+--dark-black: #1e1e1e;
+--shadow: #0009;
+--green: #59b659;
+--red: #ff3838;
+--yellow: #d9d93d;
+--borderColor: var(--SecColor);
+--facebook: #4267B2;
+--google: var(--white);
+}
+
+body {
+    background-color: var(--BodyColor);
+    font-family: 'Public Sans', sans-serif;
+    color: var(--white);
+}
+
+.ml-auto {
+    margin-left: auto;
+}
+
+/*hover*/
+.hover-bat:hover {
+    background-color: var(--dark-silver);
+}
+
+/*fonts*/
+.hand-writing {
+    font-family: 'Satisfy', cursive;
+}
+/* general */
+.top-0 {
+top: 0;
+}
+
+.right-0 {
+    right: 0;
+}
+
+.linear-black {
+background: linear-gradient(45deg, var(--black), transparent);
+}
+
+.trans-me {
+background: transparent;
+border: none;
+}
+
+/* color pattern*/
+.color-wh {
+color: var(--colorWhite) !important;
+}
+
+.color-gr {
+color: var(--grey);
+}
+
+.color-sv {
+    color: var(--bs-gray-200);
+}
+
+.color-or {
+color: orangered;
+}
+
+/* Border */
+.border-left {
+border-left: 1px solid var(--borderColor) !important
+}
+
+.border-right {
+border-right: 1px solid var(--borderColor) !important
+}
+
+.border-top {
+border-top: 1px solid var(--borderColor) !important
+}
+
+.border-bottom {
+border-bottom: 1px solid var(--borderColor) !important
+}
+
+/* fonts */
+.title {
+color: var(--white);
+}
+
+.fs-10 {
+font-size: 10px;
+}
+
+.fs-11 {
+font-size: 11px;
+}
+
+.fs-12 {
+font-size: 12px;
+}
+
+.fs-13 {
+font-size: 13px;
+}
+
+.fs-14 {
+font-size: 14px;
+}
+
+.fs-15 {
+font-size: 15px;
+}
+
+.fs-16 {
+font-size: 16px;
+}
+
+.fs-17 {
+font-size: 17px;
+}
+
+.fs-18 {
+font-size: 18px;
+}
+
+.fs-19 {
+font-size: 19px;
+}
+
+.fs-20 {
+font-size: 20px;
+}
+
+.fs-21 {
+font-size: 21px;
+}
+
+.fs-22 {
+font-size: 22px;
+}
+
+.fs-23 {
+font-size: 23px;
+}
+
+.fs-24 {
+font-size: 24px;
+}
+
+.fs-25 {
+font-size: 25px;
+}
+
+.fs-26 {
+font-size: 26px;
+}
+
+.fw-200 {
+font-weight: 200;
+}
+
+.fw-400 {
+font-weight: 400;
+}
+
+.fw-500 {
+font-weight: 500;
+}
+
+.fw-600 {
+font-weight: 600;
+}
+
+.fw-700 {
+font-weight: 700;
+}
+
+.fw-900 {
+font-weight: 900;
+}
+
+/* TheBucket globals */
+.d-grid {
+display: grid;
+}
+
+.grid-1-1 {
+grid-template-columns: 50% 50%;
+}
+
+.grid-1-2 {
+grid-template-columns: 25% 75%;
+}
+
+.grid-1-3 {
+grid-template-columns: 33.3333% 66.6666%;
+}
+
+.grid-1-1-1 {
+grid-template-columns: 33.3333% 33.3333% 33.3333%;
+}
+
+.grid-1-1-2 {
+    grid-template-columns: 25% 25% 50%;
+}
+.grid-1-1-1-1 {
+    grid-template-columns: 25% 25% 25% 25%;
+}
+.grid-1-1-1-1-1 {
+    grid-template-columns: 20% 20% 20% 20% 20%;
+}
+.rgrid-1-2 {
+    grid-template-rows: 25% 75%;
+}
+.rgrid-2-1 {
+    grid-template-rows: 75% 25%;
+}
+/* Navbar */
+nav {
+    height: 63px;
+    z-index: 2;
+    background-color: var(--black);
+}
+
+.grid-1-1-1-1 {
+grid-template-columns: 25% 25% 25% 25%;
+}
+
+.grid-1-1-1-1-1 {
+grid-template-columns: 20% 20% 20% 20% 20%;
+}
+
+.rgrid-1-2 {
+grid-template-rows: 25% 75%;
+}
+
+.rgrid-2-1 {
+grid-template-rows: 75% 25%;
+}
