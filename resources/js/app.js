@@ -15,6 +15,9 @@ import AppComponent from './components/AppComponent.vue'
 import chatComponent from './components/Pages/chatComponent.vue'
 
 import VueChatScroll from 'vue-chat-scroll'
+import useVuelidate from '@vuelidate/core'
+
+
 
 
 
@@ -49,5 +52,6 @@ let app = createApp({
 app.use(store)
    .use(router)
    .use(VueChatScroll)
+   .use(useVuelidate)
    .mount("#app")
 
