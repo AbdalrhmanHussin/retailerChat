@@ -12,22 +12,25 @@
         </a>
      </div>
      <p class="text fs-12 fw-600 text-center pt-4 mt-4">Or sign in by using email</p>
-     <form class="form">
+     <form class="form" @submit.prevent="register">
         <div class="form-group position-relative mb-4"> 
-            <label for="user" class="position-absolute" :class="{'active':username || usertype.length > 0}"> Username</label>
-            <input class="form-control" type="text" required autocomplete="user" id="user" @focus="username = true" @blur="username = false" v-model="usertype"/>
+            <label for="user" class="position-absolute" :class="{'active':active == 'username' || form.name.length > 0}"> Username</label>
+            <input class="form-control" type="text" required autocomplete="user" id="user" @focus="active = 'username'" @blur="active = ''" v-model="form.name"/>
+            <span class="error d-block w-100" v-if="error.name">{{ error.name[0] }}</span>
         </div>
         <div class="form-group position-relative"> 
-            <label for="email" class="position-absolute" :class="{'active':email || emailtype.length > 0}"> Email Address</label>
-            <input class="form-control" type="email" required autocomplete="email" id="email" @focus="email = true" @blur="email = false" v-model="emailtype"/>
+            <label for="email" class="position-absolute" :class="{'active':active == 'email' || form.email.length > 0}"> Email Address</label>
+            <input class="form-control" type="email" required autocomplete="email" id="email" @focus="active = 'email'" @blur="active = ''" v-model="form.email"/>
+            <span class="error d-block w-100" v-if="error.email">{{ error.email[0] }}</span>
         </div>
         <div class="form-group position-relative mt-4"> 
-            <label for="password" class="position-absolute" :class="{'active':password || passwordtype.length > 0}">Password</label>
-            <input class="form-control" type="password" id="password" required @focus="password = true" @blur="password = false" v-model="passwordtype"/>
+            <label for="password" class="position-absolute" :class="{'active':active == 'password' || form.password.length > 0}">Password</label>
+            <input class="form-control" type="password" id="password" required  @focus="active = 'password'" @blur="active = ''" v-model="form.password"/>
+            <span class="error d-block w-100" v-if="error.password">{{ error.password[0] }}</span>
         </div>
         <div class="form-group position-relative mt-4"> 
-            <label for="password" class="position-absolute" :class="{'active':cpassword || cpasswordtype.length > 0}">Confirm Password</label>
-            <input class="form-control" type="password" id="password" required @focus="cpassword = true" @blur="cpassword = false" v-model="cpasswordtype"/>
+            <label for="password" class="position-absolute" :class="{'active':active == 'password_confirmation' || form.password_confirmation.length > 0}">Confirm Password</label>
+            <input class="form-control" type="password" id="password" required  @focus="active = 'password_confirmation'" @blur="active = ''" v-model="form.password_confirmation"/>
         </div> 
         <input type="submit" value="Register Now" class="mt-3 w-100 form-btn">
         <div class="actions mt-3">
@@ -38,19 +41,41 @@
 </template>
 
 <script>
+import useVuelidate from '@vuelidate/core'
+import { required, email, minLength, sameAs } from '@vuelidate/validators'
+import axios from 'axios'
 
 export default ({
   data: function() {
     return {
-      email: false,
-      password: false,
-      username: false,
-      usertype: '',
-      emailtype: '',
-      passwordtype: '',
-      cpassword: '',
-      cpasswordtype: '',
+      active: '',
+      form: {
+        email: '',
+        password: '',
+        name: '',
+        password_confirmation: ''
+      },
+      error: {}
     }
   },
+  methods: {
+    register()
+    {
+      axios.post('user/register',this.form).then((res)=>{
+        if(res.data.message)
+        {
+          this.$router.push({name:'chat'});
+        }
+        else 
+        {
+          let payload = res.data.payload;
+          for(var key in payload)
+          {
+            this.error[key] = payload[key]
+          }
+        }
+      })
+    }
+  }
 })
 </script>

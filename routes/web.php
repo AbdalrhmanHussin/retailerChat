@@ -13,12 +13,18 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+// Route::get('/email',function(){
+//    return new App\Mail\forget();
+// });
 Route::group(['prefix' => 'user'],function(){
     Route::get('/',[UserController::class,'Users']);
     Route::post('/login',[UserController::class,'login']);
-    Route::get('/register',[UserController::class,'register']);
+    Route::post('/register',[UserController::class,'register']);
     Route::get('/{user}',[UserController::class,'find']);
+    Route::post('/forget',[UserController::class,'forget']);
+    Route::post('/checktoken',[UserController::class,'checktoken']);
+    Route::post('/changepassword',[UserController::class,'changepassword']);
+
 });
 
 //socialite
@@ -28,3 +34,4 @@ Route::get('/socialite/{drive}/redirect',[UserController::class,'resocialite']);
 Route::get('/{any}', function () {
     return view('welcome');
 })->where('any','.*')->name('vue');
+

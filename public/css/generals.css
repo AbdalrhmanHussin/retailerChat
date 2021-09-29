@@ -26,6 +26,8 @@
 --borderColor: var(--SecColor);
 --facebook: #4267B2;
 --google: var(--white);
+--dark-red: #4e0606;
+--sl-dark-red: #770909;
 }
 
 body {
@@ -253,4 +255,20 @@ grid-template-rows: 25% 75%;
 
 .rgrid-2-1 {
 grid-template-rows: 75% 25%;
+}
+
+.error {
+    background: var(--dark-red);
+    padding: 6px;
+    font-size: 11px;
+    top: 7px;
+    position: relative;
+    border-radius: 7px;
+    width: 100%;
+    font-weight: 600;
+    border: 2px solid var(--sl-dark-red);
+}
+
+label {
+    cursor: pointer;
 }

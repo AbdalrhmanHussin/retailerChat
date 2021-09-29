@@ -14,16 +14,14 @@
     margin: 5px;
     border-radius: 50%;
     padding: 1px;
-    animation: load 1.5s ease-in-out  infinite;
+    animation: load 1.5s ease-in-out infinite;
 }
 
-.loader span:nth-of-type(2)
-{
+.loader span:nth-of-type(2) {
     animation-delay: .3s;
 }
 
-.loader span:nth-of-type(3)
-{
+.loader span:nth-of-type(3) {
     animation-delay: .6s;
 }
 
@@ -39,8 +37,8 @@
     border-radius: 50%;
     background-color: var(--silver);
     border-radius: 100%;
-    animation: move-circle 1.5s ease-in-out  infinite;
-    animation-direction:alternate;
+    animation: move-circle 1.5s ease-in-out infinite;
+    animation-direction: alternate;
 }
 
 .circle-loader .inner {
@@ -51,20 +49,20 @@
     border-radius: 100%;
     top: 35.2%;
     left: 17.7%;
-    animation: move-inner 1.5s ease-in-out  infinite;
-    animation-direction:alternate;
+    animation: move-inner 1.5s ease-in-out infinite;
+    animation-direction: alternate;
 }
 
 /*Animation*/
 
 .load-enter-active,
 .load-leave-active {
-  transition: all 0.9s ease;
+    transition: all 0.9s ease;
 }
 
-.load-enter-from{
-  opacity: 0;
-  transform: translateY(-6px);
+.load-enter-from {
+    opacity: 0;
+    transform: translateY(-6px);
 }
 
 .load-leave-to {
@@ -74,15 +72,113 @@
 
 .load-leave-from,
 .load-enter-to {
-  opacity: 1;
-  transform: translateY(0px);
+    opacity: 1;
+    transform: translateY(0px);
 }
+
+.main-container {
+    z-index: 9;
+}
+
+.loading-page {
+    background-color: var(--SecColor);
+    z-index: 10;
+    background: var(--BodyColor);
+}
+
+.loader {
+    font-size: 10px;
+    margin: 10px auto;
+    text-indent: -9999em;
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    background: #ffffff;
+    background: -moz-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+    background: -webkit-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+    background: -o-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+    background: -ms-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+    background: linear-gradient(to right, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+    position: relative;
+    -webkit-animation: load3 1.4s infinite linear;
+    animation: load3 1.4s infinite linear;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.loader:before {
+    width: 50%;
+    height: 50%;
+    background: #ffffff;
+    border-radius: 100% 0 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: '';
+}
+
+.loader:after {
+    background: var(--BodyColor);
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    content: '';
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+.loader-spinner {
+    position: relative;
+}
+.loader-spinner-enter-active,
+.loader-spinner-leave-active {
+    top: 15px;
+    transition: all 3.3s linear ;
+}
+.loader-spinner-leave-to
+.loader-spinner-enter-from {
+    top: 15px;
+}
+.loader-spinner-leave-from
+.loader-spinner-enter-to {
+    top: 0;
+}
+
+
+@-webkit-keyframes load3 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes load3 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
 @keyframes load {
-    0%{
+    0% {
         padding: .5px;
         background-color: var(--silver);
     }
-    
+
     80% {
         padding: .7px;
         background-color: var(--whity-silver);
@@ -96,12 +192,12 @@
         padding: .5px;
     }
 
-  
+
 }
 
 
 @keyframes move-inner {
-    0%{
+    0% {
         transform: translate(35px, 0px);
     }
 
@@ -115,7 +211,7 @@
 }
 
 @keyframes move-circle {
-    0%{
+    0% {
         transform: translate(0px, 0px);
     }
 
@@ -129,6 +225,7 @@
 }
 
 @media screen and (min-width:992px) {
+
     .room-enter-active,
     .room-leave-active {
         transition: none;

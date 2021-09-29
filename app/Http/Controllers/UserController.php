@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\result;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 
 
@@ -31,14 +29,41 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        $user = User::login($request->only(['email','password']));
+        $user = User::login($request->only(['email','password']),$request->remember);
         return $user;
     }
 
     public function register(Request $request)
     {
-        $user = User::validate(['name','email','password','password_confirmation'],$request->all())
+        $user = User::validate(['name','email','password'],$request->all())
                     ->register();
+        return $user;
+    }
+
+    public function forget(Request $request)
+    {
+        $data = [];
+        $data['email'] = $request->only('email');
+        User::checkEmail($data['email'])->mail('forget',$data);
+        return result::repsonse(true);
+    }
+
+    public function checkToken(Request $request)
+    {
+        $token = User::checkToken($request->token,$request->email);
+        return $token;
+    }
+
+    public function changepassword(Request $request)
+    {
+        $changepassword = User::checkToken($request->token,$request->email);
+        if($changepassword['message'])
+        {
+            $user_check = User::validate(['password'],$request->only('password','password_confirmation'))
+                            ->changepassword($request->only(['email','password']));
+            return $user_check;
+
+        }
     }
 
     public function socialite($drive) 

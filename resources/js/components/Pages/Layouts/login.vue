@@ -14,18 +14,18 @@
      <p class="text fs-12 fw-600 text-center pt-4 mt-4">Or sign in by using email</p>
      <form class="form"  @submit.prevent="login()">
         <div class="form-group position-relative"> 
-            <label for="email" class="position-absolute" :class="{'active':email || emailtype.length > 0}"> Email Address</label>
-            <input class="form-control" type="email" required autocomplete="email" id="email" @focus="email = true" @blur="email = false" v-model="emailtype"/>
+            <label for="email" class="position-absolute" :class="{'active':active == 'email' || form.email.length > 0}"> Email Address</label>
+            <input class="form-control" type="email" required autocomplete="email" id="email" @focus="active = 'email'" @blur="active = ''" v-model="form.email"/>
         </div>
         <div class="form-group position-relative mt-4"> 
-            <label for="password" class="position-absolute" :class="{'active':password || passwordtype.length > 0}">Password</label>
-            <input class="form-control" type="password" id="password" required @focus="password = true" @blur="password = false" v-model="passwordtype"/>
+            <label for="password" class="position-absolute" :class="{'active':active == 'password' || form.password.length > 0}">Password</label>
+            <input class="form-control" type="password" id="password" required @focus="active ='password'" @blur="active = ''" v-model="form.password"/>
         </div>
         <div class="form-group d-flex align-items-center">
-          <input type="checkbox" class="remember position-relative">
+          <input type="checkbox" class="remember position-relative" v-model="form.remember">
           <label for="" class="fs-11 fw-600">Remember me</label>
         </div>
-        <span class="error" v-if=" v$.emailtype.$error || v$.passwordtype.$error">Wrong Credentials</span>
+        <span class="error d-block w-100" v-if=" error.login">Wrong Credentials</span>
         <span class="error" v-if=" apiFailed">Wrong Credentials</span>
         <input type="submit" value="Login Now" class="mt-3 mb-3 w-100 form-btn">
         <div class="actions">
@@ -37,50 +37,40 @@
 </template>
 
 <script>
-import useVuelidate from '@vuelidate/core'
-import { required, email, minLength } from '@vuelidate/validators'
 import axios from 'axios'
 
 export default ({
   data: function() {
     return {
-      email: false,
-      password: false,
-      emailtype: '',
-      passwordtype: '',
-      apiFailed: false,
-      v$: useVuelidate()
-    }
-  },
-  validations() {
-    return {
-      emailtype: {
-        required, email 
+      active: '',
+      form: {
+         email: '',
+         password: '',
+         remember: false
       },
-      passwordtype: {
-        required, 
-        min: minLength(8)
-      }
+      error: {}
+      // email: false,
+      // password: false,
+      // emailtype: '',
+      // passwordtype: '',
     }
   },
   methods: {
     login()
     {
-        this.v$.$validate() 
-        if(!this.v$.$error)
-        {
-            axios.post('/user/login',{email:this.emailtype,password:this.passwordtype})
-                 .then((res) => {
-                     console.log(res.data);
-                     if(res.data.message == true)
-                     {
-                        this.$router.push('/chat');
-                     } else 
-                       this.apiFailed = true
-                 })
-        } else 
-        {
-        }
+      axios.post('/user/login',this.form)
+        .then((res) => {
+          if(res.data.message == true)
+          {
+            this.$router.push('/chat');
+          } else {
+            let payload = res.data.payload;
+            for(var key in payload)
+            {
+              this.error[key] = payload[key]
+            }
+          }
+      })
     }
   }
 })

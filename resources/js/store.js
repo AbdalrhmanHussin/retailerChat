@@ -6,6 +6,7 @@ const store = createStore({
   state: {
 	 roomid: null,
 	 load: 4,
+	 loading: false,
 	 allLoaded: false,
 	 list: false,
 	 activeRoom: {
@@ -65,16 +66,23 @@ const store = createStore({
 		return status.roomid;
 	},
 
+	loadstate: (status) => {
+		return status.loading;
+	},
+
 	window: () => {
 		console.log(window.innerWidth)
 		return window;
-	}
+	},
+
 
   },
 	mutations: {
+
 		fetched(state,payload) {
 	       state.fetched = payload;
 		},
+
 		active: (state,id) => {
 			let user = state.users.find(x => x.id === id + 1);
 			state.activeRoom.name   = user.name;
@@ -82,6 +90,7 @@ const store = createStore({
 			state.activeRoom.image = user.image;
 			state.roomid = id;
 		},
+
 		loadUsers(state,index) {
 			if(!state.allLoaded) {
 				let users = state.users.slice(index,index + state.load);
@@ -92,6 +101,13 @@ const store = createStore({
 				})
 			} 
 		},
+
+		loadingPage(state,load) {
+			console.log(state.loading)
+			state.loading = load;
+			console.log(state.loading)
+		}
+
  	},
  	actions: {
 	 	

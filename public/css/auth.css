@@ -1,5 +1,5 @@
 .auth {
-    height: 100vh;
+    min-height: 100vh;
     background-size: cover !important;
     background-repeat: no-repeat !important;
 }
@@ -57,9 +57,11 @@
     background: var(--SecColor);
     content: '';
 }
-
+.auth input[type="checkbox"]::before {
+    display:  none;
+}
 .auth input[type="checkbox"]:checked::before {
-   display: none;
+   display: block;
 }
 
 .auth a {
@@ -100,7 +102,15 @@
 .auth .form-btn:hover {
     background-color: var(--bs-gray);
 }
-/* input.remember:before {
-    content: '';
-    width: 20px;
-} */
+
+@media screen and (max-width: 1200px) {
+    .auth {
+        display: none;
+        justify-content: center;
+    }
+
+    .login {
+        width: 100% !important;
+        max-width: 400px;
+    }
+}

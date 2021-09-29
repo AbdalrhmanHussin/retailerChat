@@ -18300,996 +18300,6 @@ function useVuelidate(validations, state, globalConfig = {}) {
 
 /***/ }),
 
-/***/ "./node_modules/@vuelidate/validators/dist/index.esm.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/@vuelidate/validators/dist/index.esm.js ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "alpha": () => (/* binding */ alpha),
-/* harmony export */   "alphaNum": () => (/* binding */ alphaNum),
-/* harmony export */   "and": () => (/* binding */ and),
-/* harmony export */   "between": () => (/* binding */ between),
-/* harmony export */   "createI18nMessage": () => (/* binding */ createI18nMessage),
-/* harmony export */   "decimal": () => (/* binding */ decimal),
-/* harmony export */   "email": () => (/* binding */ email),
-/* harmony export */   "helpers": () => (/* binding */ common),
-/* harmony export */   "integer": () => (/* binding */ integer),
-/* harmony export */   "ipAddress": () => (/* binding */ ipAddress),
-/* harmony export */   "macAddress": () => (/* binding */ macAddress),
-/* harmony export */   "maxLength": () => (/* binding */ maxLength),
-/* harmony export */   "maxValue": () => (/* binding */ maxValue),
-/* harmony export */   "minLength": () => (/* binding */ minLength),
-/* harmony export */   "minValue": () => (/* binding */ minValue),
-/* harmony export */   "not": () => (/* binding */ not),
-/* harmony export */   "numeric": () => (/* binding */ numeric),
-/* harmony export */   "or": () => (/* binding */ or),
-/* harmony export */   "required": () => (/* binding */ required),
-/* harmony export */   "requiredIf": () => (/* binding */ requiredIf),
-/* harmony export */   "requiredUnless": () => (/* binding */ requiredUnless),
-/* harmony export */   "sameAs": () => (/* binding */ sameAs),
-/* harmony export */   "url": () => (/* binding */ url)
-/* harmony export */ });
-/* harmony import */ var vue_demi__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-demi */ "./node_modules/vue-demi/lib/index.mjs");
-
-
-function isFunction(val) {
-  return typeof val === 'function';
-}
-function isObject(o) {
-  return o !== null && typeof o === 'object' && !Array.isArray(o);
-}
-/**
- * Returns a standard ValidatorObject
- * Wraps a plain function into a ValidatorObject
- * @param {NormalizedValidator|Function} validator
- * @return {NormalizedValidator}
- */
-
-function normalizeValidatorObject(validator) {
-  return isFunction(validator.$validator) ? Object.assign({}, validator) : {
-    $validator: validator
-  };
-}
-function isPromise(object) {
-  return isObject(object) && isFunction(object.then);
-}
-/**
- * Unwraps a ValidatorResponse object, into a boolean.
- * @param {ValidatorResponse} result
- * @return {boolean}
- */
-
-function unwrapValidatorResponse(result) {
-  if (typeof result === 'object') return result.$valid;
-  return result;
-}
-/**
- * Unwraps a `NormalizedValidator` object, returning its validator function.
- * @param {NormalizedValidator | Function} validator
- * @return {function}
- */
-
-function unwrapNormalizedValidator(validator) {
-  return validator.$validator || validator;
-}
-
-/**
- * Allows attaching parameters to a validator
- * @param {Object} $params
- * @param {NormalizedValidator|Function} $validator
- * @return {NormalizedValidator}
- */
-
-function withParams($params, $validator) {
-  if (!isObject($params)) throw new Error(`[@vuelidate/validators]: First parameter to "withParams" should be an object, provided ${typeof $params}`);
-  if (!isObject($validator) && !isFunction($validator)) throw new Error(`[@vuelidate/validators]: Validator must be a function or object with $validator parameter`);
-  const validatorObj = normalizeValidatorObject($validator);
-  validatorObj.$params = Object.assign({}, validatorObj.$params || {}, $params);
-  return validatorObj;
-}
-
-/**
- * @callback MessageCallback
- * @param {Object} params
- * @return String
- */
-
-/**
- * Attaches a message to a validator
- * @param {MessageCallback | String} $message
- * @param {NormalizedValidator|Function} $validator
- * @return {NormalizedValidator}
- */
-
-function withMessage($message, $validator) {
-  if (!isFunction($message) && typeof (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)($message) !== 'string') throw new Error(`[@vuelidate/validators]: First parameter to "withMessage" should be string or a function returning a string, provided ${typeof $message}`);
-  if (!isObject($validator) && !isFunction($validator)) throw new Error(`[@vuelidate/validators]: Validator must be a function or object with $validator parameter`);
-  const validatorObj = normalizeValidatorObject($validator);
-  validatorObj.$message = $message;
-  return validatorObj;
-}
-
-/**
- * @typedef {function(*): Promise<boolean|ValidatorResponse>} asyncValidator
- */
-
-/**
- * @typedef {Ref<*>[]|function(*): *} watchTargets
- */
-
-/**
- * Wraps validators that returns a Promise.
- * @param {asyncValidator} $validator
- * @param {watchTargets} $watchTargets
- * @return {{$async: boolean, $validator: asyncValidator, $watchTargets: watchTargets}}
- */
-
-function withAsync($validator, $watchTargets = []) {
-  const validatorObj = normalizeValidatorObject($validator);
-  return Object.assign({}, validatorObj, {
-    $async: true,
-    $watchTargets
-  });
-}
-
-function forEach(validators) {
-  return {
-    $validator(collection, ...others) {
-      // go over the collection. It can be a ref as well.
-      return (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(collection).reduce((previous, object) => {
-        // go over each property
-        const collectionEntryResult = Object.entries(object).reduce((all, [key, $model]) => {
-          // get the validators for this property
-          const innerValidators = validators[key] || {}; // go over each validator and run it
-
-          const propertyResult = Object.entries(innerValidators).reduce((all, [validatorName, currentValidator]) => {
-            // extract the validator. Supports simple and extended validators.
-            const validatorFunction = unwrapNormalizedValidator(currentValidator); // Call the validator with correct parameters
-
-            const $response = validatorFunction.call(this, $model, ...others); // extract the valid from the result
-
-            const $valid = unwrapValidatorResponse($response); // store the entire response for later
-
-            all.$data[validatorName] = $response; // if not valid, get the $message
-
-            if (!$valid) {
-              let $message = currentValidator.$message || '';
-              let $params = currentValidator.$params || {}; // If $message is a function, we call it with the appropriate parameters
-
-              if (typeof $message === 'function') {
-                $message = $message({
-                  $pending: false,
-                  $invalid: !$valid,
-                  $params,
-                  $model,
-                  $response
-                });
-              } // save the error object
-
-
-              all.$errors.push({
-                $property: key,
-                $message,
-                $params,
-                $response,
-                $model,
-                $pending: false,
-                $validator: validatorName
-              });
-            }
-
-            return {
-              $valid: all.$valid && $valid,
-              $data: all.$data,
-              $errors: all.$errors
-            };
-          }, {
-            $valid: true,
-            $data: {},
-            $errors: []
-          });
-          all.$data[key] = propertyResult.$data;
-          all.$errors[key] = propertyResult.$errors;
-          return {
-            $valid: all.$valid && propertyResult.$valid,
-            $data: all.$data,
-            $errors: all.$errors
-          };
-        }, {
-          $valid: true,
-          $data: {},
-          $errors: {}
-        });
-        return {
-          $valid: previous.$valid && collectionEntryResult.$valid,
-          $data: previous.$data.concat(collectionEntryResult.$data),
-          $errors: previous.$errors.concat(collectionEntryResult.$errors)
-        };
-      }, {
-        $valid: true,
-        $data: [],
-        $errors: []
-      });
-    },
-
-    // collect all the validation errors into a 2 dimensional array, for each entry in the collection, you have an array of error messages.
-    $message: ({
-      $response
-    }) => $response ? $response.$errors.map(context => {
-      return Object.values(context).map(errors => errors.map(error => error.$message)).reduce((a, b) => a.concat(b), []);
-    }) : []
-  };
-}
-
-// "required" core, used in almost every validator to allow empty values
-const req = value => {
-  value = (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(value);
-  if (Array.isArray(value)) return !!value.length;
-
-  if (value === undefined || value === null) {
-    return false;
-  }
-
-  if (value === false) {
-    return true;
-  }
-
-  if (value instanceof Date) {
-    // invalid date won't pass
-    return !isNaN(value.getTime());
-  }
-
-  if (typeof value === 'object') {
-    for (let _ in value) return true;
-
-    return false;
-  }
-
-  return !!String(value).length;
-};
-/**
- * Returns the length of an arbitrary value
- * @param {Array|Object|String} value
- * @return {number}
- */
-
-const len = value => {
-  value = (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(value);
-  if (Array.isArray(value)) return value.length;
-
-  if (typeof value === 'object') {
-    return Object.keys(value).length;
-  }
-
-  return String(value).length;
-};
-/**
- * Regex based validator template
- * @param {RegExp} expr
- * @return {function(*=): boolean}
- */
-
-function regex(expr) {
-  return value => {
-    value = (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(value);
-    return !req(value) || expr.test(value);
-  };
-}
-
-var common = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  withParams: withParams,
-  withMessage: withMessage,
-  withAsync: withAsync,
-  forEach: forEach,
-  req: req,
-  len: len,
-  regex: regex,
-  unwrap: vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref,
-  unwrapNormalizedValidator: unwrapNormalizedValidator,
-  unwrapValidatorResponse: unwrapValidatorResponse,
-  normalizeValidatorObject: normalizeValidatorObject
-});
-
-var alpha$1 = regex(/^[a-zA-Z]*$/);
-
-/**
- * Validate if value is alphabetical string.
- * @type {NormalizedValidator}
- */
-
-var alpha = {
-  $validator: alpha$1,
-  $message: 'The value is not alphabetical',
-  $params: {
-    type: 'alpha'
-  }
-};
-
-var alphaNum$1 = regex(/^[a-zA-Z0-9]*$/);
-
-/**
- * Validate if value is alpha-numeric string.
- * @type {NormalizedValidator}
- */
-
-var alphaNum = {
-  $validator: alphaNum$1,
-  $message: 'The value must be alpha-numeric',
-  $params: {
-    type: 'alphaNum'
-  }
-};
-
-var numeric$1 = regex(/^\d*(\.\d+)?$/);
-
-/**
- * Check whether a value is numeric.
- * @type NormalizedValidator
- */
-
-var numeric = {
-  $validator: numeric$1,
-  $message: 'Value must be numeric',
-  $params: {
-    type: 'numeric'
-  }
-};
-
-/**
- * Check if a numeric value is between two values.
- * @param {Ref<Number> | Number} min
- * @param {Ref<Number> | Number} max
- * @return {function(*=): boolean}
- */
-
-function between$1 (min, max) {
-  return value => !req(value) || (!/\s/.test(value) || value instanceof Date) && +(0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(min) <= +value && +(0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(max) >= +value;
-}
-
-/**
- * Checks if a value is between two values.
- * @param {Ref<Number> | Number} min
- * @param {Ref<Number> | Number} max
- * @return {NormalizedValidator}
- */
-
-function between (min, max) {
-  return {
-    $validator: between$1(min, max),
-    $message: ({
-      $params
-    }) => `The value must be between ${$params.min} and ${$params.max}`,
-    $params: {
-      min,
-      max,
-      type: 'between'
-    }
-  };
-}
-
-const emailRegex = /^(?:[A-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]{2,}(?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/i;
-var email$1 = regex(emailRegex);
-
-/**
- * Validate if value is an email.
- * @type {NormalizedValidator}
- */
-
-var email = {
-  $validator: email$1,
-  $message: 'Value is not a valid email address',
-  $params: {
-    type: 'email'
-  }
-};
-
-/**
- * Check if a string is an IP Address
- * @param {String} value
- * @returns {boolean}
- */
-
-function ipAddress$1 (value) {
-  if (!req(value)) {
-    return true;
-  }
-
-  if (typeof value !== 'string') {
-    return false;
-  }
-
-  const nibbles = value.split('.');
-  return nibbles.length === 4 && nibbles.every(nibbleValid);
-}
-
-const nibbleValid = nibble => {
-  if (nibble.length > 3 || nibble.length === 0) {
-    return false;
-  }
-
-  if (nibble[0] === '0' && nibble !== '0') {
-    return false;
-  }
-
-  if (!nibble.match(/^\d+$/)) {
-    return false;
-  }
-
-  const numeric = +nibble | 0;
-  return numeric >= 0 && numeric <= 255;
-};
-
-/**
- * Validate if value is an ipAddress string.
- * @type {NormalizedValidator}
- */
-
-var ipAddress = {
-  $validator: ipAddress$1,
-  $message: 'The value is not a valid IP address',
-  $params: {
-    type: 'ipAddress'
-  }
-};
-
-/**
- * Check if value is a properly formatted Mac Address.
- * @param {String | Ref<String>} [separator]
- * @returns {function(*): boolean}
- */
-
-function macAddress$1 (separator = ':') {
-  return value => {
-    separator = (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(separator);
-
-    if (!req(value)) {
-      return true;
-    }
-
-    if (typeof value !== 'string') {
-      return false;
-    }
-
-    const parts = typeof separator === 'string' && separator !== '' ? value.split(separator) : value.length === 12 || value.length === 16 ? value.match(/.{2}/g) : null;
-    return parts !== null && (parts.length === 6 || parts.length === 8) && parts.every(hexValid);
-  };
-}
-
-const hexValid = hex => hex.toLowerCase().match(/^[0-9a-f]{2}$/);
-
-/**
- * Validate if value is a valid Mac Address string.
- * @returns {NormalizedValidator}
- */
-
-function macAddress (separator) {
-  return {
-    $validator: macAddress$1(separator),
-    $message: 'The value is not a valid MAC Address',
-    $params: {
-      type: 'macAddress'
-    }
-  };
-}
-
-/**
- * Check if provided value has a maximum length
- * @param {Number | Ref<Number>} length
- * @returns {function(Array|Object|String): boolean}
- */
-
-function maxLength$1 (length) {
-  return value => !req(value) || len(value) <= (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(length);
-}
-
-/**
- * Validate the max length of a string.
- * @param {Number} max
- * @return {NormalizedValidator}
- */
-
-function maxLength (max) {
-  return {
-    $validator: maxLength$1(max),
-    $message: ({
-      $params
-    }) => `The maximum length allowed is ${$params.max}`,
-    $params: {
-      max,
-      type: 'maxLength'
-    }
-  };
-}
-
-/**
- * Check if value is above a threshold.
- * @param {Number | Ref<Number>} length
- * @returns {function(Array|Object|String): boolean}
- */
-
-function minLength$1 (length) {
-  return value => !req(value) || len(value) >= (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(length);
-}
-
-/**
- * Check if value is above a threshold.
- * @param {Number | Ref<Number>} min
- * @returns {NormalizedValidator}
- */
-
-function minLength (min) {
-  return {
-    $validator: minLength$1(min),
-    $message: ({
-      $params
-    }) => `This field should be at least ${$params.min} long`,
-    $params: {
-      min,
-      type: 'minLength'
-    }
-  };
-}
-
-/**
- * Validates if a value is empty.
- * @param {String | Array | Date | Object} value
- * @returns {boolean}
- */
-
-function required$1 (value) {
-  if (typeof value === 'string') {
-    value = value.trim();
-  }
-
-  return req(value);
-}
-
-/**
- * Check if a value is empty or not.
- * @type {NormalizedValidator}
- */
-
-var required = {
-  $validator: required$1,
-  $message: 'Value is required',
-  $params: {
-    type: 'required'
-  }
-};
-
-const validate$1 = (prop, val) => prop ? req(val) : true;
-/**
- * Returns required if the passed property is truthy
- * @param {Boolean | String | function(any): Boolean | Ref<string | boolean>} propOrFunction
- * @return {function(value: *, parentVM: object): Boolean}
- */
-
-
-function requiredIf$1(propOrFunction) {
-  return function (value, parentVM) {
-    if (typeof propOrFunction !== 'function') {
-      return validate$1((0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(propOrFunction), value);
-    }
-
-    const result = propOrFunction.call(this, value, parentVM);
-    return validate$1(result, value);
-  };
-}
-
-/**
- * Returns required if the passed property is truthy
- * @param {Boolean | String | function(): (Boolean | Promise<boolean>)} prop
- * @return {NormalizedValidator}
- */
-
-function requiredIf (prop) {
-  return {
-    $validator: requiredIf$1(prop),
-    $message: 'The value is required',
-    $params: {
-      type: 'requiredIf',
-      prop
-    }
-  };
-}
-
-const validate = (prop, val) => !prop ? req(val) : true;
-/**
- * Returns required if the passed property is falsy.
- * @param {Boolean | String | function(any): Boolean | Ref<string | boolean>} propOrFunction
- * @return {function(value: *, parentVM: object): Boolean}
- */
-
-
-function requiredUnless$1(propOrFunction) {
-  return function (value, parentVM) {
-    if (typeof propOrFunction !== 'function') {
-      return validate((0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(propOrFunction), value);
-    }
-
-    const result = propOrFunction.call(this, value, parentVM);
-    return validate(result, value);
-  };
-}
-
-/**
- * Returns required unless the passed property is truthy
- * @param {Boolean | String | function(): (Boolean | Promise<boolean>)} prop
- * @return {NormalizedValidator}
- */
-
-function requiredUnless (prop) {
-  return {
-    $validator: requiredUnless$1(prop),
-    $message: 'The value is required',
-    $params: {
-      type: 'requiredUnless',
-      prop
-    }
-  };
-}
-
-/**
- * Check if two values are identical.
- * @param {*} equalTo
- * @return {function(*=): boolean}
- */
-
-function sameAs$1 (equalTo) {
-  return value => (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(value) === (0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(equalTo);
-}
-
-/**
- * Check if two values are identical
- * @param {*} equalTo
- * @param {String} [otherName]
- * @return {NormalizedValidator}
- */
-
-function sameAs (equalTo, otherName = 'other') {
-  return {
-    $validator: sameAs$1(equalTo),
-    $message: ({
-      $params
-    }) => `The value must be equal to the ${otherName} value`,
-    $params: {
-      equalTo,
-      otherName,
-      type: 'sameAs'
-    }
-  };
-}
-
-/**
- * Regex taken from {@link https://gist.github.com/dperini/729294}
- */
-
-const urlRegex = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u00a1-\uffff][a-z0-9\u00a1-\uffff_-]{0,62})?[a-z0-9\u00a1-\uffff]\.)+(?:[a-z\u00a1-\uffff]{2,}\.?))(?::\d{2,5})?(?:[/?#]\S*)?$/i;
-var url$1 = regex(urlRegex);
-
-/**
- * Check if a value is a url
- * @type {NormalizedValidator}
- */
-
-var url = {
-  $validator: url$1,
-  $message: 'The value is not a valid URL address',
-  $params: {
-    type: 'url'
-  }
-};
-
-function _await$1(value, then, direct) {
-  if (direct) {
-    return then ? then(value) : value;
-  }
-
-  if (!value || !value.then) {
-    value = Promise.resolve(value);
-  }
-
-  return then ? value.then(then) : value;
-}
-
-function syncOr(validators) {
-  return function (...args) {
-    return validators.reduce((valid, fn) => {
-      if (unwrapValidatorResponse(valid)) return valid;
-      return unwrapNormalizedValidator(fn).apply(this, args);
-    }, false);
-  };
-}
-
-function asyncOr(validators) {
-  return function (...args) {
-    const _this = this;
-
-    return validators.reduce(function (valid, fn) {
-      return _await$1(valid, function (r) {
-        return unwrapValidatorResponse(r) ? r : unwrapNormalizedValidator(fn).apply(_this, args);
-      });
-    }, Promise.resolve(false));
-  };
-}
-/**
- * Returns true when one of the provided functions returns true.
- * @param {...(NormalizedValidator|Function)} validators
- * @return {{$validator: function(...[*]=): (boolean | Promise<boolean>), $async: boolean, $watchTargets: any[]}}
- */
-
-
-function or$1(...validators) {
-  const $async = validators.some(v => v.$async);
-  const $watchTargets = validators.reduce((all, v) => {
-    if (!v.$watchTargets) return all;
-    return all.concat(v.$watchTargets);
-  }, []);
-
-  let $validator = () => false;
-
-  if (validators.length) $validator = $async ? asyncOr(validators) : syncOr(validators);
-  return {
-    $async,
-    $validator,
-    $watchTargets
-  };
-}
-
-/**
- * Returns true when one of the provided functions returns true.
- * @param {...(NormalizedValidator|Function)} validators
- * @return {NormalizedValidator}
- */
-
-function or (...validators) {
-  return withParams({
-    type: 'or'
-  }, withMessage('The value does not match any of the provided validators', or$1(...validators)));
-}
-
-function _await(value, then, direct) {
-  if (direct) {
-    return then ? then(value) : value;
-  }
-
-  if (!value || !value.then) {
-    value = Promise.resolve(value);
-  }
-
-  return then ? value.then(then) : value;
-}
-/**
- *
- * @param validators
- * @return {function(...[*]=): Promise<boolean>}
- */
-
-
-function syncAnd(validators) {
-  return function (...args) {
-    return validators.reduce((valid, fn) => {
-      if (!unwrapValidatorResponse(valid)) return valid;
-      return unwrapNormalizedValidator(fn).apply(this, args);
-    }, true);
-  };
-}
-
-function asyncAnd(validators) {
-  return function (...args) {
-    const _this = this;
-
-    return validators.reduce(function (valid, fn) {
-      return _await(valid, function (r) {
-        return unwrapValidatorResponse(r) ? unwrapNormalizedValidator(fn).apply(_this, args) : r;
-      });
-    }, Promise.resolve(true));
-  };
-}
-/**
- * Returns true when all validators are truthy
- * @param {...(NormalizedValidator | Function)} validators
- * @return {{$validator: function(...[*]=): (boolean | Promise<boolean>), $async: boolean, $watchTargets: any[]}}
- */
-
-
-function and$1(...validators) {
-  const $async = validators.some(v => v.$async);
-  const $watchTargets = validators.reduce((all, v) => {
-    if (!v.$watchTargets) return all;
-    return all.concat(v.$watchTargets);
-  }, []);
-
-  let $validator = () => false;
-
-  if (validators.length) $validator = $async ? asyncAnd(validators) : syncAnd(validators);
-  return {
-    $async,
-    $validator,
-    $watchTargets
-  };
-}
-
-/**
- * Validate if all validators match.
- * @param {...*} validators
- * @returns {NormalizedValidator}
- */
-
-function and (...validators) {
-  return withParams({
-    type: 'and'
-  }, withMessage('The value does not match all of the provided validators', and$1(...validators)));
-}
-
-/**
- * Swaps the result of a value
- * @param {NormalizedValidator|Function} validator
- * @returns {function(*=, *=): boolean}
- */
-
-function not$1 (validator) {
-  return function (value, vm) {
-    if (!req(value)) return true;
-    const response = unwrapNormalizedValidator(validator).call(this, value, vm);
-    if (!isPromise(response)) return !unwrapValidatorResponse(response);
-    return response.then(r => !unwrapValidatorResponse(r));
-  };
-}
-
-/**
- * Swaps the result of a value
- * @param {NormalizedValidator|Function} validator
- * @returns {NormalizedValidator}
- */
-
-function not (validator) {
-  return {
-    $validator: not$1(validator),
-    $message: `The value does not match the provided validator`,
-    $params: {
-      type: 'not'
-    }
-  };
-}
-
-/**
- * Check if a value is above a threshold.
- * @param {String | Number | Ref<Number> | Ref<String>} min
- * @returns {function(*=): boolean}
- */
-
-function minValue$1 (min) {
-  return value => !req(value) || (!/\s/.test(value) || value instanceof Date) && +value >= +(0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(min);
-}
-
-/**
- * Check if a value is above a threshold.
- * @param {String | Number | Ref<Number> | Ref<String>} min
- * @returns {NormalizedValidator}
- */
-
-function minValue (min) {
-  return {
-    $validator: minValue$1(min),
-    $message: ({
-      $params
-    }) => `The minimum value allowed is ${$params.min}`,
-    $params: {
-      min,
-      type: 'minValue'
-    }
-  };
-}
-
-/**
- * Check if value is below a threshold.
- * @param {Number | Ref<Number> | Ref<String>} max
- * @returns {function(*=): boolean}
- */
-
-function maxValue$1 (max) {
-  return value => !req(value) || (!/\s/.test(value) || value instanceof Date) && +value <= +(0,vue_demi__WEBPACK_IMPORTED_MODULE_0__.unref)(max);
-}
-
-/**
- * Check if value is below a threshold.
- * @param {Number | Ref<Number> | Ref<String>} max
- * @return {NormalizedValidator}
- */
-
-var maxValue = (max => ({
-  $validator: maxValue$1(max),
-  $message: ({
-    $params
-  }) => `The maximum value is ${$params.max}`,
-  $params: {
-    max,
-    type: 'maxValue'
-  }
-}));
-
-// ^-[0-9]+$ - only for negative integer (minus sign without at least 1 digit is not a number)
-
-var integer$1 = regex(/(^[0-9]*$)|(^-[0-9]+$)/);
-
-/**
- * Validate if value is integer.
- * @type {NormalizedValidator}
- */
-
-var integer = {
-  $validator: integer$1,
-  $message: 'Value is not an integer',
-  $params: {
-    type: 'integer'
-  }
-};
-
-var decimal$1 = regex(/^[-]?\d*(\.\d+)?$/);
-
-/**
- * Validate if value is decimal number.
- * @type {NormalizedValidator}
- */
-
-var decimal = {
-  $validator: decimal$1,
-  $message: 'Value must be decimal',
-  $params: {
-    type: 'decimal'
-  }
-};
-
-/**
- * Creates a translatable version of `withMessage` helper.
- * @param {function} t - the translation function of your choice
- * @param {function} [messagePath] - a function to generate the message path, passed to `t` for each message. By default it is `validations.${$validator}`
- * @param {function} [messageParams] - a function to augment the params, passed to `t` for each message.
- */
-
-function createI18nMessage({
-  t,
-  messagePath = ({
-    $validator
-  }) => `validations.${$validator}`,
-  messageParams = params => params
-}) {
-  return function withI18nMessage(validator, {
-    withArguments = false,
-    messagePath: localMessagePath = messagePath,
-    messageParams: localMessageParams = messageParams
-  } = {}) {
-    function message(props) {
-      return t(localMessagePath(props), localMessageParams(Object.assign({
-        model: props.$model,
-        property: props.$property,
-        pending: props.$pending,
-        invalid: props.$invalid,
-        response: props.$response,
-        validator: props.$validator,
-        propertyPath: props.$propertyPath
-      }, props.$params)));
-    }
-
-    if (withArguments && typeof validator === 'function') {
-      return (...args) => withMessage(message, validator(...args));
-    }
-
-    return withMessage(message, validator);
-  };
-}
-
-
-
-
-/***/ }),
-
 /***/ "./node_modules/axios/index.js":
 /*!*************************************!*\
   !*** ./node_modules/axios/index.js ***!
@@ -21396,14 +20406,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      email: false,
-      password: false,
-      emailtype: '',
-      passwordtype: ''
+      active: '',
+      form: {
+        email: ''
+      },
+      send: false
     };
+  },
+  methods: {
+    forget: function forget() {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('user/forget', this.form);
+      this.send = true;
+    }
   }
 });
 
@@ -21420,54 +20440,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _vuelidate_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @vuelidate/core */ "./node_modules/@vuelidate/core/dist/index.esm.js");
-/* harmony import */ var _vuelidate_validators__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @vuelidate/validators */ "./node_modules/@vuelidate/validators/dist/index.esm.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
-
-
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      email: false,
-      password: false,
-      emailtype: '',
-      passwordtype: '',
-      apiFailed: false,
-      v$: (0,_vuelidate_core__WEBPACK_IMPORTED_MODULE_0__["default"])()
-    };
-  },
-  validations: function validations() {
-    return {
-      emailtype: {
-        required: _vuelidate_validators__WEBPACK_IMPORTED_MODULE_2__.required,
-        email: _vuelidate_validators__WEBPACK_IMPORTED_MODULE_2__.email
+      active: '',
+      form: {
+        email: '',
+        password: '',
+        remember: false
       },
-      passwordtype: {
-        required: _vuelidate_validators__WEBPACK_IMPORTED_MODULE_2__.required,
-        min: (0,_vuelidate_validators__WEBPACK_IMPORTED_MODULE_2__.minLength)(8)
-      }
+      error: {} // email: false,
+      // password: false,
+      // emailtype: '',
+      // passwordtype: '',
+
     };
   },
   methods: {
     login: function login() {
       var _this = this;
 
-      this.v$.$validate();
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/login', this.form).then(function (res) {
+        if (res.data.message == true) {
+          _this.$router.push('/chat');
+        } else {
+          var payload = res.data.payload;
 
-      if (!this.v$.$error) {
-        axios__WEBPACK_IMPORTED_MODULE_1___default().post('/user/login', {
-          email: this.emailtype,
-          password: this.passwordtype
-        }).then(function (res) {
-          console.log(res.data);
-
-          if (res.data.message == true) {
-            _this.$router.push('/chat');
-          } else _this.apiFailed = true;
-        });
-      } else {}
+          for (var key in payload) {
+            _this.error[key] = payload[key];
+          }
+        }
+      });
     }
   }
 });
@@ -21500,18 +20506,43 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var _vuelidate_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @vuelidate/core */ "./node_modules/@vuelidate/core/dist/index.esm.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
-      email: false,
-      password: false,
-      username: false,
-      usertype: '',
-      emailtype: '',
-      passwordtype: '',
-      cpassword: '',
-      cpasswordtype: ''
+      active: '',
+      form: {
+        email: '',
+        password: '',
+        name: '',
+        password_confirmation: ''
+      },
+      error: {}
     };
+  },
+  methods: {
+    register: function register() {
+      var _this = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_1___default().post('user/register', this.form).then(function (res) {
+        if (res.data.message) {
+          _this.$router.push({
+            name: 'chat'
+          });
+        } else {
+          var payload = res.data.payload;
+
+          for (var key in payload) {
+            _this.error[key] = payload[key];
+          }
+        }
+      });
+    }
   }
 });
 
@@ -21528,15 +20559,68 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  props: ['token', 'email'],
   data: function data() {
     return {
-      email: false,
-      password: false,
-      passwordtype: '',
-      cpassword: false,
-      cpasswordtype: ''
+      active: '',
+      form: {
+        email: '',
+        password: '',
+        password_confirmation: ''
+      },
+      error: {},
+      validToken: false,
+      ExpiredToken: false,
+      loading: true
     };
+  },
+  methods: {
+    changePassword: function changePassword() {
+      var _this = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/changepassword', {
+        password: this.form.password,
+        password_confirmation: this.form.password_confirmation,
+        email: this.email,
+        token: this.token
+      }).then(function (res) {
+        if (res.data.message) {
+          _this.$router.push('/');
+        } else {
+          var payload = res.data.payload;
+
+          for (var key in payload) {
+            _this.error[key] = payload[key];
+          }
+        }
+      });
+    },
+    checkToken: function checkToken() {
+      var _this2 = this;
+
+      console.log('worked');
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/checktoken', {
+        token: this.token,
+        email: this.email
+      }).then(function (res) {
+        console.log(res.data.message);
+
+        if (res.data.message) {
+          _this2.validToken = true;
+        } else {
+          _this2.ExpiredToken = true;
+        }
+
+        _this2.loading = false;
+      });
+    }
+  },
+  created: function created() {
+    this.checkToken();
   }
 });
 
@@ -21744,7 +20828,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _Pages_Layouts_roomLayout_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Pages/Layouts/roomLayout.vue */ "./resources/js/components/Pages/Layouts/roomLayout.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm-bundler.js");
+/* harmony import */ var _Layouts_loadingScreen_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Layouts/loadingScreen.vue */ "./resources/js/components/Pages/Layouts/loadingScreen.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm-bundler.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -21753,11 +20838,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   components: {
-    'room': _Pages_Layouts_roomLayout_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+    'room': _Pages_Layouts_roomLayout_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
+    'loading-screen': _Layouts_loadingScreen_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
-  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_1__.mapGetters)(['roomid', 'window'])), {}, {
+  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_2__.mapGetters)(['roomid', 'window', 'loadstate'])), {}, {
     screen: function screen() {
       if (window.innerWidth > 992) {
         return true;
@@ -21953,20 +21040,15 @@ var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 /* HOISTED */
 );
 
-var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+var _hoisted_3 = {
+  key: 0,
   "class": "text fs-12 text-center pt-4 mt-4"
-}, "After submit password reset follow the instruction that has been send to your account", -1
-/* HOISTED */
-);
-
-var _hoisted_4 = {
-  "class": "form"
 };
-var _hoisted_5 = {
+var _hoisted_4 = {
   "class": "form-group position-relative"
 };
 
-var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+var _hoisted_5 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
   type: "submit",
   value: "Send Email",
   "class": "mt-3 w-100 form-btn"
@@ -21974,11 +21056,21 @@ var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 /* HOISTED */
 );
 
+var _hoisted_6 = {
+  key: 2,
+  "class": "mb-0 mt-3 fs-12"
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, _hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, !_ctx.send ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_3, "After submit password reset follow the instruction that has been send to your account")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), !_ctx.send ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("form", {
+    key: 1,
+    "class": "form",
+    onSubmit: _cache[3] || (_cache[3] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function () {
+      return $options.forget && $options.forget.apply($options, arguments);
+    }, ["prevent"]))
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "email",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.email || _ctx.emailtype.length > 0
+      'active': _ctx.active == 'email' || _ctx.form.email.length > 0
     }])
   }, " Email Address", 2
   /* CLASS */
@@ -21989,17 +21081,77 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     autocomplete: "email",
     id: "email",
     onFocus: _cache[0] || (_cache[0] = function ($event) {
-      return _ctx.email = true;
+      return _ctx.active = 'email';
     }),
     onBlur: _cache[1] || (_cache[1] = function ($event) {
-      return _ctx.email = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
-      return _ctx.emailtype = $event;
+      return _ctx.form.email = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.emailtype]]), _hoisted_6])])]);
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.email]]), _hoisted_5])], 32
+  /* HYDRATE_EVENTS */
+  )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _ctx.send ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_6, "If this email is a available in our database we will send you a mail")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]);
+}
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Pages/Layouts/loadingScreen.vue?vue&type=template&id=11f730fc":
+/*!*************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Pages/Layouts/loadingScreen.vue?vue&type=template&id=11f730fc ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render)
+/* harmony export */ });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+
+var _hoisted_1 = {
+  "class": "loading-page d-flex flex-column justify-content-center align-items-center w-100 h-100 position-fixed top-0 left-0"
+};
+var _hoisted_2 = {
+  key: 0,
+  "class": "loader-spinner"
+};
+
+var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "load-logo"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+  src: "/images/system/logo.svg",
+  alt: "logo"
+})], -1
+/* HOISTED */
+);
+
+var _hoisted_4 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "loadIndicator d-flex justify-content-center align-items-center"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+  "class": "mb-0 px-2 fs-14"
+}, "Loading"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "loader px-2"
+}, "Loading...")], -1
+/* HOISTED */
+);
+
+var _hoisted_5 = [_hoisted_3, _hoisted_4];
+function render(_ctx, _cache) {
+  var _this = this;
+
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(vue__WEBPACK_IMPORTED_MODULE_0__.Transition, {
+    name: "loader-spinner"
+  }, {
+    "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [_this.$store.state.loading ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_2, _hoisted_5)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+    }),
+    _: 1
+    /* STABLE */
+
+  })]);
 }
 
 /***/ }),
@@ -22029,29 +21181,27 @@ var _hoisted_5 = {
 var _hoisted_6 = {
   "class": "form-group position-relative mt-4"
 };
-
-var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_7 = {
   "class": "form-group d-flex align-items-center"
-}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-  type: "checkbox",
-  "class": "remember position-relative"
-}), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+};
+
+var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
   "for": "",
   "class": "fs-11 fw-600"
-}, "Remember me")], -1
+}, "Remember me", -1
 /* HOISTED */
 );
 
-var _hoisted_8 = {
-  key: 0,
-  "class": "error"
-};
 var _hoisted_9 = {
+  key: 0,
+  "class": "error d-block w-100"
+};
+var _hoisted_10 = {
   key: 1,
   "class": "error"
 };
 
-var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
   type: "submit",
   value: "Login Now",
   "class": "mt-3 mb-3 w-100 form-btn"
@@ -22059,26 +21209,26 @@ var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
 /* HOISTED */
 );
 
-var _hoisted_11 = {
+var _hoisted_12 = {
   "class": "actions"
 };
 
-var _hoisted_12 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Not a member? Register now");
+var _hoisted_13 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Not a member? Register now");
 
-var _hoisted_13 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Forget Password");
+var _hoisted_14 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Forget Password");
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_router_link = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("router-link");
 
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
     "class": "form",
-    onSubmit: _cache[6] || (_cache[6] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
+    onSubmit: _cache[7] || (_cache[7] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
       return $options.login();
     }, ["prevent"]))
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "email",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.email || _ctx.emailtype.length > 0
+      'active': _ctx.active == 'email' || _ctx.form.email.length > 0
     }])
   }, " Email Address", 2
   /* CLASS */
@@ -22089,20 +21239,20 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     autocomplete: "email",
     id: "email",
     onFocus: _cache[0] || (_cache[0] = function ($event) {
-      return _ctx.email = true;
+      return _ctx.active = 'email';
     }),
     onBlur: _cache[1] || (_cache[1] = function ($event) {
-      return _ctx.email = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
-      return _ctx.emailtype = $event;
+      return _ctx.form.email = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.emailtype]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.email]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "password",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.password || _ctx.passwordtype.length > 0
+      'active': _ctx.active == 'password' || _ctx.form.password.length > 0
     }])
   }, "Password", 2
   /* CLASS */
@@ -22112,24 +21262,32 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     id: "password",
     required: "",
     onFocus: _cache[3] || (_cache[3] = function ($event) {
-      return _ctx.password = true;
+      return _ctx.active = 'password';
     }),
     onBlur: _cache[4] || (_cache[4] = function ($event) {
-      return _ctx.password = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
-      return _ctx.passwordtype = $event;
+      return _ctx.form.password = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.passwordtype]])]), _hoisted_7, _ctx.v$.emailtype.$error || _ctx.v$.passwordtype.$error ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_8, "Wrong Credentials")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _ctx.apiFailed ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_9, "Wrong Credentials")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_10, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_router_link, {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.password]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    type: "checkbox",
+    "class": "remember position-relative",
+    "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
+      return _ctx.form.remember = $event;
+    })
+  }, null, 512
+  /* NEED_PATCH */
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelCheckbox, _ctx.form.remember]]), _hoisted_8]), _ctx.error.login ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_9, "Wrong Credentials")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _ctx.apiFailed ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_10, "Wrong Credentials")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _hoisted_11, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_12, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_router_link, {
     to: {
       name: 'register'
     },
     "class": "fs-11 color-sv d-block"
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_12];
+      return [_hoisted_13];
     }),
     _: 1
     /* STABLE */
@@ -22141,7 +21299,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "class": "fs-11 color-sv d-block mt-2"
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_13];
+      return [_hoisted_14];
     }),
     _: 1
     /* STABLE */
@@ -22199,22 +21357,31 @@ var _hoisted_1 = {
 var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<p class=\"text fs-12 fw-600 text-center pt-4\">Sign in by using social accounts</p><div class=\"social-btns\"><a href=\"#\" class=\"d-flex fs-12 color-wh facebook justify-content-center\"><i class=\"ri-facebook-circle-fill\"></i><p class=\"px-2 mb-0 text-center\">Sign in with facebook</p></a><a href=\"#\" class=\"d-flex mt-3 fs-12 google justify-content-center\"><i class=\"ri-google-fill pr-2\"></i><p class=\"px-2 mb-0\">Sign in with google</p></a></div><p class=\"text fs-12 fw-600 text-center pt-4 mt-4\">Or sign in by using email</p>", 3);
 
 var _hoisted_5 = {
-  "class": "form"
+  "class": "form-group position-relative mb-4"
 };
 var _hoisted_6 = {
-  "class": "form-group position-relative mb-4"
+  key: 0,
+  "class": "error d-block w-100"
 };
 var _hoisted_7 = {
   "class": "form-group position-relative"
 };
 var _hoisted_8 = {
-  "class": "form-group position-relative mt-4"
+  key: 0,
+  "class": "error d-block w-100"
 };
 var _hoisted_9 = {
   "class": "form-group position-relative mt-4"
 };
+var _hoisted_10 = {
+  key: 0,
+  "class": "error d-block w-100"
+};
+var _hoisted_11 = {
+  "class": "form-group position-relative mt-4"
+};
 
-var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+var _hoisted_12 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
   type: "submit",
   value: "Register Now",
   "class": "mt-3 w-100 form-btn"
@@ -22222,19 +21389,24 @@ var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElement
 /* HOISTED */
 );
 
-var _hoisted_11 = {
+var _hoisted_13 = {
   "class": "actions mt-3"
 };
 
-var _hoisted_12 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Already have account? Sign in");
+var _hoisted_14 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Already have account? Sign in");
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_router_link = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("router-link");
 
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
+    "class": "form",
+    onSubmit: _cache[12] || (_cache[12] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function () {
+      return $options.register && $options.register.apply($options, arguments);
+    }, ["prevent"]))
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "user",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.username || _ctx.usertype.length > 0
+      'active': _ctx.active == 'username' || _ctx.form.name.length > 0
     }])
   }, " Username", 2
   /* CLASS */
@@ -22245,20 +21417,22 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     autocomplete: "user",
     id: "user",
     onFocus: _cache[0] || (_cache[0] = function ($event) {
-      return _ctx.username = true;
+      return _ctx.active = 'username';
     }),
     onBlur: _cache[1] || (_cache[1] = function ($event) {
-      return _ctx.username = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
-      return _ctx.usertype = $event;
+      return _ctx.form.name = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.usertype]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.name]]), _ctx.error.name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_ctx.error.name[0]), 1
+  /* TEXT */
+  )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "email",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.email || _ctx.emailtype.length > 0
+      'active': _ctx.active == 'email' || _ctx.form.email.length > 0
     }])
   }, " Email Address", 2
   /* CLASS */
@@ -22269,20 +21443,22 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     autocomplete: "email",
     id: "email",
     onFocus: _cache[3] || (_cache[3] = function ($event) {
-      return _ctx.email = true;
+      return _ctx.active = 'email';
     }),
     onBlur: _cache[4] || (_cache[4] = function ($event) {
-      return _ctx.email = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
-      return _ctx.emailtype = $event;
+      return _ctx.form.email = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.emailtype]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.email]]), _ctx.error.email ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_ctx.error.email[0]), 1
+  /* TEXT */
+  )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "password",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.password || _ctx.passwordtype.length > 0
+      'active': _ctx.active == 'password' || _ctx.form.password.length > 0
     }])
   }, "Password", 2
   /* CLASS */
@@ -22292,20 +21468,22 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     id: "password",
     required: "",
     onFocus: _cache[6] || (_cache[6] = function ($event) {
-      return _ctx.password = true;
+      return _ctx.active = 'password';
     }),
     onBlur: _cache[7] || (_cache[7] = function ($event) {
-      return _ctx.password = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[8] || (_cache[8] = function ($event) {
-      return _ctx.passwordtype = $event;
+      return _ctx.form.password = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.passwordtype]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.password]]), _ctx.error.password ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_10, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_ctx.error.password[0]), 1
+  /* TEXT */
+  )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "password",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.cpassword || _ctx.cpasswordtype.length > 0
+      'active': _ctx.active == 'password_confirmation' || _ctx.form.password_confirmation.length > 0
     }])
   }, "Confirm Password", 2
   /* CLASS */
@@ -22315,29 +21493,31 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     id: "password",
     required: "",
     onFocus: _cache[9] || (_cache[9] = function ($event) {
-      return _ctx.cpassword = true;
+      return _ctx.active = 'password_confirmation';
     }),
     onBlur: _cache[10] || (_cache[10] = function ($event) {
-      return _ctx.cpassword = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[11] || (_cache[11] = function ($event) {
-      return _ctx.cpasswordtype = $event;
+      return _ctx.form.password_confirmation = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.cpasswordtype]])]), _hoisted_10, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_router_link, {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.password_confirmation]])]), _hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_13, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_router_link, {
     to: {
       name: 'register'
     },
     "class": "fs-11 color-sv d-block"
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_12];
+      return [_hoisted_14];
     }),
     _: 1
     /* STABLE */
 
-  })])])]);
+  })])], 32
+  /* HYDRATE_EVENTS */
+  )]);
 }
 
 /***/ }),
@@ -22358,30 +21538,22 @@ __webpack_require__.r(__webpack_exports__);
 var _hoisted_1 = {
   "class": "login"
 };
-
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+var _hoisted_2 = {
+  key: 0,
   "class": "text fs-15 fw-600 text-center pt-4 mt-4"
-}, "Password Reset", -1
-/* HOISTED */
-);
-
-var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+};
+var _hoisted_3 = {
+  key: 1,
   "class": "text fs-12 text-center pt-4 mt-4"
-}, "Use a password easy to remember for you like something in your life or a date ", -1
-/* HOISTED */
-);
-
+};
 var _hoisted_4 = {
-  "class": "form"
+  "class": "form-group position-relative mt-4"
 };
 var _hoisted_5 = {
   "class": "form-group position-relative mt-4"
 };
-var _hoisted_6 = {
-  "class": "form-group position-relative mt-4"
-};
 
-var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
   type: "submit",
   value: "Reset Password",
   "class": "mt-3 w-100 form-btn"
@@ -22389,11 +21561,32 @@ var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 /* HOISTED */
 );
 
+var _hoisted_7 = {
+  key: 0,
+  "class": "error d-block w-100"
+};
+var _hoisted_8 = {
+  key: 3,
+  "class": "error d-block w-100"
+};
+var _hoisted_9 = {
+  "class": "loadIndicator d-flex justify-content-center align-items-center w-100"
+};
+var _hoisted_10 = {
+  key: 0,
+  "class": "mb-0 px-2 fs-14 mt-5 fw-600"
+};
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, _hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_ctx.validToken ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_2, "Password Reset")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _ctx.validToken ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_3, "Use a password easy to remember for you like something in your life or a date ")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _ctx.validToken ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("form", {
+    key: 2,
+    "class": "form",
+    onSubmit: _cache[6] || (_cache[6] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
+      return $options.changePassword();
+    }, ["prevent"]))
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     "for": "password",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.password || _ctx.passwordtype.length > 0
+      'active': _ctx.active == 'password' || _ctx.form.password.length > 0
     }])
   }, "Password", 2
   /* CLASS */
@@ -22403,40 +21596,44 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     id: "password",
     required: "",
     onFocus: _cache[0] || (_cache[0] = function ($event) {
-      return _ctx.password = true;
+      return _ctx.active = 'password';
     }),
     onBlur: _cache[1] || (_cache[1] = function ($event) {
-      return _ctx.password = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
-      return _ctx.passwordtype = $event;
+      return _ctx.form.password = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.passwordtype]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-    "for": "password",
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.password]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
+    "for": "password_confirmation",
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["position-absolute", {
-      'active': _ctx.cpassword || _ctx.cpasswordtype.length > 0
+      'active': _ctx.active == 'password_confirmation' || _ctx.form.password_confirmation.length > 0
     }])
   }, "Confirm Password", 2
   /* CLASS */
   ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "class": "form-control",
     type: "password",
-    id: "password",
+    id: "password_confirmation",
     required: "",
     onFocus: _cache[3] || (_cache[3] = function ($event) {
-      return _ctx.cpassword = true;
+      return _ctx.active = 'password_confirmation';
     }),
     onBlur: _cache[4] || (_cache[4] = function ($event) {
-      return _ctx.cpassword = false;
+      return _ctx.active = '';
     }),
     "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
-      return _ctx.cpasswordtype = $event;
+      return _ctx.form.password_confirmation = $event;
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.cpasswordtype]])]), _hoisted_7])]);
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, _ctx.form.password_confirmation]])]), _hoisted_6, _ctx.error.password ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_ctx.error.password[0]), 1
+  /* TEXT */
+  )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 32
+  /* HYDRATE_EVENTS */
+  )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _ctx.ExpiredToken ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_8, "Invalid or expired token")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [!_ctx.validToken && _ctx.loading ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_10, "Loading")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
 }
 
 /***/ }),
@@ -22854,31 +22051,47 @@ __webpack_require__.r(__webpack_exports__);
 var _hoisted_1 = {
   "class": "layout-chatter d-flex"
 };
+var _hoisted_2 = {
+  "class": "position-relative main-container w-100 d-flex"
+};
 
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"side-menu align-items-center-md\"><a href=\"#\" class=\"logo w-100 d-flex-lg justify-content-center menu-item d-none\"><img src=\"/images/system/logo.svg\"></a><ul class=\"menu d-flex flex-direction-column-lg justify-content-center-md w-100\"><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-user-3-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-message-2-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-contacts-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-settings-2-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-global-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-sun-line\"></i></li></a></ul></div>", 1);
+var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"side-menu align-items-center-md\"><a href=\"#\" class=\"logo w-100 d-flex-lg justify-content-center menu-item d-none\"><img src=\"/images/system/logo.svg\"></a><ul class=\"menu d-flex flex-direction-column-lg justify-content-center-md w-100\"><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-user-3-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-message-2-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-contacts-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-settings-2-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-global-line\"></i></li></a><a href=\"#\" class=\"menu-item\"><li class=\"p-2\"><i class=\"ri-sun-line\"></i></li></a></ul></div>", 1);
 
-var _hoisted_3 = {
+var _hoisted_4 = {
   "class": "usersArea d-flex w-100"
 };
-var _hoisted_4 = {
+var _hoisted_5 = {
   key: 0,
   "class": "empty d-none-md d-flex justify-content-center align-items-center"
 };
 
-var _hoisted_5 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
   src: "/images/system/logo.svg",
   alt: "logo"
 }, null, -1
 /* HOISTED */
 );
 
-var _hoisted_6 = [_hoisted_5];
+var _hoisted_7 = [_hoisted_6];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_router_view = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("router-view");
 
   var _component_room = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("room");
 
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [_hoisted_2, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_router_view), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_room), _ctx.roomid == null ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_4, _hoisted_6)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
+  var _component_loading_screen = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("loading-screen");
+
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_router_view), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_room), _ctx.roomid == null ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_5, _hoisted_7)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(vue__WEBPACK_IMPORTED_MODULE_0__.Transition, {
+    name: "fade"
+  }, {
+    "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
+      return [_ctx.loadstate ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)(_component_loading_screen, {
+        key: 0
+      })) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+    }),
+    _: 1
+    /* STABLE */
+
+  })]);
 }
 
 /***/ }),
@@ -23099,7 +22312,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vue_router__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.esm-bundler.js");
+/* harmony import */ var vue_router__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.esm-bundler.js");
 /* harmony import */ var _components_AppComponent_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/AppComponent.vue */ "./resources/js/components/AppComponent.vue");
 /* harmony import */ var _components_Pages_chatComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/Pages/chatComponent.vue */ "./resources/js/components/Pages/chatComponent.vue");
 /* harmony import */ var _components_Pages_authComponent_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/Pages/authComponent.vue */ "./resources/js/components/Pages/authComponent.vue");
@@ -23108,6 +22321,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_Pages_Layouts_register_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/Pages/Layouts/register.vue */ "./resources/js/components/Pages/Layouts/register.vue");
 /* harmony import */ var _components_Pages_Layouts_forget_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/Pages/Layouts/forget.vue */ "./resources/js/components/Pages/Layouts/forget.vue");
 /* harmony import */ var _components_Pages_Layouts_reset_vue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/Pages/Layouts/reset.vue */ "./resources/js/components/Pages/Layouts/reset.vue");
+/* harmony import */ var _store_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./store.js */ "./resources/js/store.js");
 
 
 
@@ -23117,8 +22331,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var router = (0,vue_router__WEBPACK_IMPORTED_MODULE_8__.createRouter)({
-  history: (0,vue_router__WEBPACK_IMPORTED_MODULE_8__.createWebHistory)(),
+
+
+var router = (0,vue_router__WEBPACK_IMPORTED_MODULE_9__.createRouter)({
+  history: (0,vue_router__WEBPACK_IMPORTED_MODULE_9__.createWebHistory)(),
   routes: [{
     path: '',
     component: _components_AppComponent_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
@@ -23138,19 +22354,31 @@ var router = (0,vue_router__WEBPACK_IMPORTED_MODULE_8__.createRouter)({
         name: 'register',
         component: _components_Pages_Layouts_register_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
       }, {
-        path: '/reset',
+        path: '/reset/:token/:email',
         name: 'reset',
-        component: _components_Pages_Layouts_reset_vue__WEBPACK_IMPORTED_MODULE_7__["default"]
+        component: _components_Pages_Layouts_reset_vue__WEBPACK_IMPORTED_MODULE_7__["default"],
+        props: true
       }]
     }, {
       path: '/chat',
       component: _components_Pages_chatComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
+      name: 'chat',
       children: [{
         path: '',
-        component: _components_Pages_Layouts_userListLayout__WEBPACK_IMPORTED_MODULE_3__["default"]
+        component: _components_Pages_Layouts_userListLayout__WEBPACK_IMPORTED_MODULE_3__["default"],
+        name: 'chat'
       }]
     }]
   }]
+});
+router.beforeEach(function (to, from, next) {
+  _store_js__WEBPACK_IMPORTED_MODULE_8__["default"].commit('loadingPage', true);
+  next();
+});
+router.afterEach(function (to, from, next) {
+  setTimeout(function () {
+    _store_js__WEBPACK_IMPORTED_MODULE_8__["default"].commit('loadingPage', false);
+  }, 1000);
 });
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (router);
 
@@ -23176,6 +22404,7 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_1__.createStore)({
   state: {
     roomid: null,
     load: 4,
+    loading: false,
     allLoaded: false,
     list: false,
     activeRoom: {
@@ -23286,6 +22515,9 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_1__.createStore)({
     roomid: function roomid(status) {
       return status.roomid;
     },
+    loadstate: function loadstate(status) {
+      return status.loading;
+    },
     window: function (_window) {
       function window() {
         return _window.apply(this, arguments);
@@ -23322,6 +22554,11 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_1__.createStore)({
           state.loadedUsers[0].push(user);
         });
       }
+    },
+    loadingPage: function loadingPage(state, load) {
+      console.log(state.loading);
+      state.loading = load;
+      console.log(state.loading);
     }
   },
   actions: {}
@@ -58884,6 +58121,30 @@ _forget_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"].__fi
 
 /***/ }),
 
+/***/ "./resources/js/components/Pages/Layouts/loadingScreen.vue":
+/*!*****************************************************************!*\
+  !*** ./resources/js/components/Pages/Layouts/loadingScreen.vue ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _loadingScreen_vue_vue_type_template_id_11f730fc__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./loadingScreen.vue?vue&type=template&id=11f730fc */ "./resources/js/components/Pages/Layouts/loadingScreen.vue?vue&type=template&id=11f730fc");
+
+const script = {}
+script.render = _loadingScreen_vue_vue_type_template_id_11f730fc__WEBPACK_IMPORTED_MODULE_0__.render
+/* hot reload */
+if (false) {}
+
+script.__file = "resources/js/components/Pages/Layouts/loadingScreen.vue"
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (script);
+
+/***/ }),
+
 /***/ "./resources/js/components/Pages/Layouts/login.vue":
 /*!*********************************************************!*\
   !*** ./resources/js/components/Pages/Layouts/login.vue ***!
@@ -59318,6 +58579,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "render": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_forget_vue_vue_type_template_id_3348bbe9__WEBPACK_IMPORTED_MODULE_0__.render)
 /* harmony export */ });
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_forget_vue_vue_type_template_id_3348bbe9__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./forget.vue?vue&type=template&id=3348bbe9 */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Pages/Layouts/forget.vue?vue&type=template&id=3348bbe9");
+
+
+/***/ }),
+
+/***/ "./resources/js/components/Pages/Layouts/loadingScreen.vue?vue&type=template&id=11f730fc":
+/*!***********************************************************************************************!*\
+  !*** ./resources/js/components/Pages/Layouts/loadingScreen.vue?vue&type=template&id=11f730fc ***!
+  \***********************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_loadingScreen_vue_vue_type_template_id_11f730fc__WEBPACK_IMPORTED_MODULE_0__.render)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_dist_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_dist_index_js_ruleSet_0_use_0_loadingScreen_vue_vue_type_template_id_11f730fc__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../../../node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!../../../../../node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./loadingScreen.vue?vue&type=template&id=11f730fc */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/dist/index.js??ruleSet[0].use[0]!./resources/js/components/Pages/Layouts/loadingScreen.vue?vue&type=template&id=11f730fc");
 
 
 /***/ }),
