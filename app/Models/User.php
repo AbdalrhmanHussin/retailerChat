@@ -214,7 +214,7 @@ class User extends Authenticatable
     }
 
     static function socialite($user)
-    {
+    {        
         $user = User::firstOrCreate([
             'email' => $user->email
         ],[
