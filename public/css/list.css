@@ -116,9 +116,12 @@
     background: var(--SecColor);
     border: none;
 }
+.toggler .active {
+    color: var(--gray) !important;
+}
 
-.toggler li{
-    padding: 5px 19px;
+.toggler a {
+    color: var(--gray) !important;
 }
 
 .toggler .active li{

@@ -88,7 +88,7 @@ class UserController extends Controller
         {
             $notfriends = User::notfriends($auth,$start=0,$end=5);
         } else {
-           dd('not login')
+           dd('not login');
         }
         return $notfriends;
     }
