@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\result;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -87,7 +88,7 @@ class UserController extends Controller
         {
             $notfriends = User::notfriends($auth,$start=0,$end=5);
         } else {
-            dd('failed no atuh');
+           
         }
         return $notfriends;
     }

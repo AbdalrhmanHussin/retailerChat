@@ -231,6 +231,7 @@ class User extends Authenticatable
     static function notfriends($user=1,$start=0,$end=5)
     {
         $friends = DB::select("SELECT * FROM users where id <> $user AND id NOT IN (SELECT user_id from friends where friend_id = $user ) AND id NOT IN (SELECT friend_id from friend_request where user_id = $user ) limit $start,$end");
+        
         return $friends;
     }
 
