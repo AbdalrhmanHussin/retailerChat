@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
 
@@ -9,6 +10,8 @@ const store = createStore({
 	 loading: false,
 	 allLoaded: false,
 	 list: false,
+	 suggestions: [],
+	 pending:[],
 	 activeRoom: {
 		 name: 'Doris Brown',
 		 status: 'active',
@@ -75,6 +78,14 @@ const store = createStore({
 		return window;
 	},
 
+	suggestions: (status) => {
+		return status.suggestions;
+	},
+
+	pending: (status) => {
+		return status.pending;
+	}
+
 
   },
 	mutations: {
@@ -103,14 +114,53 @@ const store = createStore({
 		},
 
 		loadingPage(state,load) {
-			console.log(state.loading)
 			state.loading = load;
-			console.log(state.loading)
+		},
+
+		suggestions(state,payload)
+		{
+			state.suggestions = payload;
+			console.log(state.suggestions);
+		},
+
+		pending(state,index) {
+			state.pending.push(state.suggestions[index]);
+			state.suggestions.splice(index,1);
 		}
 
  	},
  	actions: {
-	 	
+	 	getFriends()
+		{
+
+		},
+
+		getSuggestions({commit,state},start=0,end=5)
+		{
+			axios.post('/user/notfriends',{
+					start: start,
+					end: end
+			    }).then((res)=>{
+					commit('suggestions',res.data);
+				});
+		},
+		friendRequest({commit,state},data)
+		{
+			axios.post('/user/request',{
+				id: data.id
+			})
+			commit('pending',data.index);
+		},
+
+		pending({commit,state},data)
+		{
+			axios.post('/user/pending')
+			    .then((res)=>{
+					if(res.data.payload.length > 0) {
+						state.pending = res.data.payload[0]['pending_users'];	
+					}
+				})
+		}
  	}
 });
 export default store;

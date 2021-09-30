@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\result;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 
 
@@ -76,5 +78,28 @@ class UserController extends Controller
         $user = Socialite::driver($drive)->user();
         User::socialite($user);
         return \redirect()->route('vue',['any'=>'chat']);
+    }
+
+    public function notfriends(Request $request)
+    {
+        $auth = Auth::id();
+        if(isset($auth))
+        {
+            $notfriends = User::notfriends($auth,$start=0,$end=5);
+        } else {
+            dd('failed no atuh');
+        }
+        return $notfriends;
+    }
+
+    public function request(Request $request)
+    {
+        User::request($request->only('id'));
+    }
+
+    public function pending()
+    {
+        $pending = User::pending();
+        return result::repsonse(true,$pending);
     }
 }

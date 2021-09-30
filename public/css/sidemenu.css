@@ -39,6 +39,10 @@
     list-style: none;
 }
 
+.side-menu .menu  .active {
+    color: var(--white) ;
+}
+
 /* Media Query */
 
 @media screen and (max-width:992px)

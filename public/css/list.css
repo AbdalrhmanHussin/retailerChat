@@ -109,6 +109,23 @@
     animation: loadUser 1.3s ease-in-out  infinite alternate;
 }
 
+.user-list button {
+    font-size: 12px;
+    margin: 10px 0;
+    padding: 4px 26px;
+    background: var(--SecColor);
+    border: none;
+}
+
+.toggler li{
+    padding: 5px 19px;
+}
+
+.toggler .active li{
+    color: var(--white);
+    font-weight: 600;
+}
+
 @keyframes loadUser {
     0% {
         background: var(--SecColor);

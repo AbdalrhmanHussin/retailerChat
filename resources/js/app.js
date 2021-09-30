@@ -40,6 +40,10 @@ let app = createApp({
         AppComponent,
         chatComponent
     },
+    created() 
+    {
+        console.log('hello');
+    }
 })
 
 /**

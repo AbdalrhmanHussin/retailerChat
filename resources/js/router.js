@@ -8,9 +8,10 @@ import register from './components/Pages/Layouts/register.vue';
 import forget from './components/Pages/Layouts/forget.vue';
 import reset from './components/Pages/Layouts/reset.vue';
 import store from './store.js';
-import { storeKey } from 'vuex';
-
-
+import friends from './components/Pages/Layouts/friends';
+import pending from './components/Pages/Layouts/pending';
+import suggestions from './components/Pages/Layouts/suggestions';
+import request from './components/Pages/Layouts/request';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -23,14 +24,22 @@ const router = createRouter({
           {path:'/reset/:token/:email',name:'reset',component:reset,props:true}
         ]},
         {path:'/chat',component:chatComponent,name:'chat',children: [
-          {path:'',component:userList,name:'chat'},
+          {path:'',component:userList,name:'myarea'},
+          {path:'/friends',component:friends,name:'friends',children: [
+            {path:'/suggestions',component:suggestions,name:'suggestions'},
+            {path:'/pending',component:pending,name:'pending'}
+          ]},
+          {path:'/request',component:request,name:'request'}
         ]}
     ]},
   ],
 });
 
 router.beforeEach((to, from, next) => {
-  store.commit('loadingPage',true)
+  if(from.name == 'login' & to.name == 'chat')
+  {
+    store.commit('loadingPage',true)
+  }
   next()
 });
 

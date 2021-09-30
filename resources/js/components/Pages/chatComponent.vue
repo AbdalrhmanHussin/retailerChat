@@ -6,36 +6,36 @@
                     <img src="/images/system/logo.svg">
                 </a>
                 <ul class="menu d-flex flex-direction-column-lg  justify-content-center-md w-100">
-                    <a href="#" class="menu-item">
+                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-user-3-line"></i>
                         </li>
-                    </a>
-                    <a href="#" class="menu-item">
+                    </router-link>
+                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-message-2-line"></i>
                         </li>
-                    </a>
-                    <a href="#" class="menu-item">
+                    </router-link>
+                    <router-link :to="{name:'request'}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-contacts-line"></i>
                         </li>
-                    </a>
-                    <a href="#" class="menu-item">
+                    </router-link>
+                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-settings-2-line"></i>
                         </li>
-                    </a>
-                    <a href="#" class="menu-item">
+                    </router-link>
+                    <router-link :to="{name:'suggestions'}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-global-line"></i>
                         </li>
-                    </a>
-                    <a href="#" class="menu-item">
+                    </router-link>
+                    <router-link :to="{name:''}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-sun-line"></i>
                         </li>
-                    </a>
+                    </router-link>
                 </ul>
             </div>
             <div class="usersArea d-flex w-100">

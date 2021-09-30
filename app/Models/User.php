@@ -227,4 +227,46 @@ class User extends Authenticatable
 
         return result::repsonse(true);
     }
+
+    static function notfriends($user=1,$start=0,$end=5)
+    {
+        $friends = DB::select("SELECT * FROM users where id <> $user AND id NOT IN (SELECT user_id from friends where friend_id = $user ) AND id NOT IN (SELECT friend_id from friend_request where user_id = $user ) limit $start,$end");
+        return $friends;
+    }
+
+    static function pending()
+    {
+        if(Auth::check())
+        {
+            $users = User::with('pendingUsers')->whereId(Auth::id())->get();
+            return $users;
+
+        }
+    }
+
+    static function request($id)
+    {
+        if(Auth::check())
+        {
+            $currentUser = Auth::id();
+            DB::table('friend_request')->insert([
+                'user_id' => $currentUser,
+                'friend_id' => $id['id'],
+                'created_at' => NOW(),
+                'updated_at' => NOW()
+            ]);
+        } 
+        else 
+        {
+            throw 'Faild to Auth';
+        }
+    }
+
+    //relations
+
+    public function pendingUsers()
+    {
+        return $this->belongsToMany(User::class,'friend_request','user_id','friend_id');
+    }
+
 }

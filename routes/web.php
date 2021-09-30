@@ -24,7 +24,9 @@ Route::group(['prefix' => 'user'],function(){
     Route::post('/forget',[UserController::class,'forget']);
     Route::post('/checktoken',[UserController::class,'checktoken']);
     Route::post('/changepassword',[UserController::class,'changepassword']);
-
+    Route::post('/notfriends',[UserController::class,'notfriends']);
+    Route::post('/request',[UserController::class,'request']);
+    Route::post('/pending',[UserController::class,'pending']);
 });
 
 //socialite
