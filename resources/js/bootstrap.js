@@ -42,3 +42,9 @@ window.Echo = new Echo({
 
 console.log(process.env.MIX_PUSHER_APP_KEY,process.env.MIX_PUSHER_APP_CLUSTER)
 
+window.Echo.private(`friendrequest.${this.user.id}`)
+.listen('FriendRequest', (e) => {
+     console.log(e); 
+     this.$store.dispatch('recieverequest',e); 
+});
+
