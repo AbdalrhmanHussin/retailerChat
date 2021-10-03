@@ -1,5 +1,5 @@
 <template>
-    <div class="userlist px-4 pt-4" v-if="this.$store.state.list" >
+    <div class="userlist px-4 pt-4" v-if="this.$store.state.list">
         <h4 class="fs-23 color-sv fw-600">Chats</h4>
         <form class="form mt-3 position-relative" @submit.prevent>
             <label class="ri-search-line position-absolute top-0 color-sv p-2 fs-14"></label>
@@ -138,7 +138,7 @@ export default {
         resize()
         {
            window.addEventListener('resize',() => {
-               if(this.roomid == null || window.innerWidth > 992)
+               if(this.roomid == null || window.innerWidth > 1200)
                {
                    this.$store.state.list = true
                }

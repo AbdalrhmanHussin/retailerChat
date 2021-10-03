@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/email',function(){
 //    return new App\Mail\forget();
 // });
+Route::get('/test',[UserController::class,'test']);
 Route::group(['prefix' => 'user'],function(){
     Route::get('/',[UserController::class,'Users']);
     Route::post('/login',[UserController::class,'login']);
@@ -27,6 +28,9 @@ Route::group(['prefix' => 'user'],function(){
     Route::post('/notfriends',[UserController::class,'notfriends']);
     Route::post('/request',[UserController::class,'request']);
     Route::post('/pending',[UserController::class,'pending']);
+    Route::post('/removepending',[UserController::class,'removePending']);
+    Route::post('/getrequest',[UserController::class,'getrequest']);
+    Route::post('/submitrequest',[UserController::class,'submitRequest']);
 });
 
 //socialite

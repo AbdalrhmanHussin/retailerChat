@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FriendRequest;
 use App\Models\User;
 use App\result;
 use Exception;
@@ -86,7 +87,7 @@ class UserController extends Controller
         $auth = Auth::id();
         if(isset($auth))
         {
-            $notfriends = User::notfriends($auth,$start=0,$end=5);
+            $notfriends = User::notfriends($auth,$request->start,$request->end,$request->search);
         } else {
            dd('not login');
         }
@@ -96,11 +97,35 @@ class UserController extends Controller
     public function request(Request $request)
     {
         User::request($request->only('id'));
+        Auth::user()->sendto=$request->only('id');
+        Auth::user()->password = '';
+        broadcast(new FriendRequest(Auth::user()));
     }
 
     public function pending()
     {
         $pending = User::pending();
         return result::repsonse(true,$pending);
+    }
+
+    public function getrequest()
+    {
+        $request = User::getrequest();
+        return result::repsonse(true,$request);
+    }
+
+    public function removePending(Request $request)
+    {
+        User::removePending($request->only('friendid'));
+    }
+
+    public function submitRequest(Request $request)
+    {
+        User::handleRequest($request->id,$request->action);
+    }
+
+    public function test(Request $request)
+    {
+        dd(User::with('test')->get());
     }
 }

@@ -9,9 +9,11 @@ const store = createStore({
 	 load: 4,
 	 loading: false,
 	 allLoaded: false,
+	 screen: window.small,
 	 list: false,
 	 suggestions: [],
 	 pending:[],
+	 requestArr:[],
 	 activeRoom: {
 		 name: 'Doris Brown',
 		 status: 'active',
@@ -84,12 +86,23 @@ const store = createStore({
 
 	pending: (status) => {
 		return status.pending;
+	},
+    
+	window: () => {
+		return window;
+	},
+
+	request(state)
+	{
+		return state.requestArr
 	}
 
 
   },
 	mutations: {
-
+		listResize(state) {
+			state.listGetter();
+		},
 		fetched(state,payload) {
 	       state.fetched = payload;
 		},
@@ -126,7 +139,12 @@ const store = createStore({
 		pending(state,index) {
 			state.pending.push(state.suggestions[index]);
 			state.suggestions.splice(index,1);
-		}
+		},
+
+		request(state,payload)
+		{
+			state.requestArr = payload;
+		},
 
  	},
  	actions: {
@@ -135,12 +153,9 @@ const store = createStore({
 
 		},
 
-		getSuggestions({commit,state},start=0,end=5)
+		getSuggestions({commit,state},data={start:0,end:10,search:''})
 		{
-			axios.post('/user/notfriends',{
-					start: start,
-					end: end
-			    }).then((res)=>{
+			axios.post('/user/notfriends',data).then((res)=>{
 					commit('suggestions',res.data);
 				});
 		},
@@ -152,6 +167,15 @@ const store = createStore({
 			commit('pending',data.index);
 		},
 
+		getrequest({commit,state})
+		{
+			axios.post('/user/getrequest')
+				.then((res)=>{
+					state.request = res.data.payload[0]['friendRequest'];
+					commit('request',res.data.payload[0]['friendrequest']);
+				});
+		},
+
 		pending({commit,state},data)
 		{
 			axios.post('/user/pending')
@@ -160,6 +184,25 @@ const store = createStore({
 						state.pending = res.data.payload[0]['pending_users'];	
 					}
 				})
+		},
+
+		removepending({commit,state},data = {index: index,id: id})
+		{
+			console.log(data);
+			axios.post('/user/removepending',{friendid: data.id})
+			state.pending.splice(data.index,1);
+		},
+
+		submitrequest({state},data = {id:'',action:'',index:''})
+		{
+			state.requestArr.splice(data.index,1);
+			axios.post('user/submitrequest',{id:data.id,action:data.action});
+		},
+
+		recieverequest({state},user)
+		{
+			console.log(user);
+			state.requestArr.push(user['user']);
 		}
  	}
 });

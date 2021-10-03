@@ -15,18 +15,17 @@
      <form class="form"  @submit.prevent="login()">
         <div class="form-group position-relative"> 
             <label for="email" class="position-absolute" :class="{'active':active == 'email' || form.email.length > 0}"> Email Address</label>
-            <input class="form-control" type="email" required autocomplete="email" id="email" @focus="active = 'email'" @blur="active = ''" v-model="form.email"/>
+            <input class="form-control" type="email" required autocomplete="email" id="email" @focus="active = 'email'" @blur="active = ''" v-model="form.email" @input="handleInput" />
         </div>
         <div class="form-group position-relative mt-4"> 
             <label for="password" class="position-absolute" :class="{'active':active == 'password' || form.password.length > 0}">Password</label>
-            <input class="form-control" type="password" id="password" required @focus="active ='password'" @blur="active = ''" v-model="form.password"/>
+            <input class="form-control" type="password" id="password" required @focus="active ='password'" @blur="active = ''" v-model="form.password" ref="password" />
         </div>
         <div class="form-group d-flex align-items-center">
           <input type="checkbox" class="remember position-relative" v-model="form.remember">
           <label for="" class="fs-11 fw-600">Remember me</label>
         </div>
         <span class="error d-block w-100" v-if=" error.login">Wrong Credentials</span>
-        <span class="error" v-if=" apiFailed">Wrong Credentials</span>
         <input type="submit" value="Login Now" class="mt-3 mb-3 w-100 form-btn">
         <div class="actions">
            <router-link :to="{name:'register'}" class="fs-11 color-sv d-block">Not a member? Register now</router-link>
@@ -49,10 +48,6 @@ export default ({
          remember: false
       },
       error: {}
-      // email: false,
-      // password: false,
-      // emailtype: '',
-      // passwordtype: '',
     }
   },
   methods: {
@@ -71,7 +66,12 @@ export default ({
             }
           }
       })
+    },
+    handleInput () {
+      
     }
+  },
+  mounted(){
   }
 })
 </script>

@@ -34,6 +34,23 @@ window.Vue = require('vue').default;
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
+function detectSize() 
+{
+    if(window.innerWidth < 1200)
+    {
+        window.small = true;
+    }
+    else 
+    {
+        window.small = false;
+    }
+}
+
+window.addEventListener('resize',function(){
+    detectSize();
+});
+
+detectSize();
 
 let app = createApp({
     components: {

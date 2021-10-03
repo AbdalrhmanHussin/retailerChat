@@ -1,10 +1,14 @@
 /*list*/
 .userlist {
-    width: 30%;
+    min-width: 30%;
     min-height: 100vh;
     height: auto;
     background: var(--list);
     transition: all .4s ease-in-out;
+}
+
+.list h5 {
+    color: var(--white);
 }
 
 .userlist .search {
@@ -116,17 +120,28 @@
     background: var(--SecColor);
     border: none;
 }
+
 .toggler .active {
     color: var(--gray) !important;
 }
 
 .toggler a {
     color: var(--gray) !important;
+    text-decoration: none !important;
 }
 
 .toggler .active li{
     color: var(--white);
     font-weight: 600;
+}
+
+.user-container {
+    overflow: scroll;
+    height: 77vh;
+}
+
+.user-container::-webkit-scrollbar {
+    width: 0;
 }
 
 @keyframes loadUser {

@@ -1,6 +1,6 @@
 <template>
-    <div class="room position-relative w-100-md " v-if="roomid !== null">
-        <div class="upper p-4 w-100 border-bottom d-flex">
+    <div class="room position-relative w-100" :class="{'w-100': !this.$store.state.list}" v-if="roomid !== null">
+        <div class="upper p-4 w-100 border-bottom d-flex position-relative">
              <button @click="this.$store.state.roomid = null;this.$store.state.list = true" class="back" ref="back">
                 <i class="ri-arrow-left-s-line"></i>
              </button>
@@ -36,7 +36,7 @@
             <div class="chat-user w-100 border-top d-flex">
                 <div class="position-relative d-flex align-items-center px-3 w-100">
                     <span class="position-absolute fs-13 color-sv mb-3" v-if="placeholder && mssg.length == 0">Type your message here...</span>
-                    <textarea class="form-control position-relative" v-model="mssg" @focus="placeholder = false" @blur="placeholder = true"></textarea>
+                    <textarea class="form-control position-relative" v-model="mssg" @focus="placeholder = false" @blur="placeholder = true" @keyup="typing"></textarea>
                     <div class="emoji" @click="emojiToggler" :class="{'active': emoji}">
                         <i class="ri-emotion-happy-line"></i>
                     </div>
@@ -100,6 +100,14 @@ export default ({
    
                 }
             }
+        },
+        typing()
+        {
+            console.log('typing')
+            Echo.private(`chat.1`)
+            .whisper('typing', {
+                name: 'typing'
+            });
         }
     },
     mounted() {

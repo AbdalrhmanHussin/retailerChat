@@ -1,7 +1,7 @@
 <template>
-    <div class="layout-chatter d-flex">
+    <div class="layout-chatter d-flex" :class="{'light': light}">
         <div class="position-relative main-container w-100 d-flex">
-            <div class="side-menu align-items-center-md">
+            <div class="side-menu align-items-center-md" v-if="this.$store.state.list || roomid == null">
                 <a href="#" class="logo w-100 d-flex-lg justify-content-center menu-item d-none">
                     <img src="/images/system/logo.svg">
                 </a>
@@ -31,17 +31,19 @@
                             <i class="ri-global-line"></i>
                         </li>
                     </router-link>
-                    <router-link :to="{name:''}" active-class="active" class="menu-item">
-                        <li class="p-2">
+                    <div class="menu-item">
+                        <li class="p-2" @click="lightmode" :class="{'active':light}">
                             <i class="ri-sun-line"></i>
                         </li>
-                    </router-link>
+                    </div>
                 </ul>
             </div>
             <div class="usersArea d-flex w-100">
                 <router-view></router-view>
-                <room></room>
-                <div class="empty d-none-md d-flex justify-content-center align-items-center" v-if="roomid == null">
+                <transition name="list">
+                    <room></room>
+                </transition>
+                <div class="empty d-none-lg d-flex justify-content-center align-items-center" :class="{'d-none': resize()}" v-if="roomid == null">
                     <img src="/images/system/logo.svg" alt="logo">
                 </div>
             </div>
@@ -57,6 +59,12 @@ import room from '../Pages/Layouts/roomLayout.vue'
 import loadingScreen from './Layouts/loadingScreen.vue'
 import {mapGetters} from 'vuex';
 export default ({
+    data() {
+        return {
+            user: JSON.parse(localStorage.getItem('user') || '{}'),
+            light: JSON.parse(localStorage.getItem('lightMode') || '{}')
+        }
+    },
     components: {
         'room': room,
         'loading-screen': loadingScreen
@@ -66,7 +74,8 @@ export default ({
         ...mapGetters([
           'roomid',
           'window',
-          'loadstate'
+          'loadstate',
+          'window'
         ]),
 
         screen() {
@@ -83,13 +92,58 @@ export default ({
         resize()
         {
             window.addEventListener('resize',function(){
-                console.log(this.window.innerWidth > 992 && this.roomid == null);
+                console.log(window.small && this.roomid !== null);
+
+                if(this.window > 1200)
+                {
+                    return true;
+                } else {
+                    return false;
+                }
             });
         },
+        user()
+        {
+            if(localStorage.getItem('user'))
+            {
+                return JSON.parse(localStorage.getItem('user'))
+            }
+              
+        },
+        lightmode()
+        {
+            if(this.light)
+            {
+                localStorage.setItem('lightMode',false);
+                this.light = false;
+            } else {
+                localStorage.setItem('lightMode',true);
+                this.light = true;
+            }
+            console.log(this.light);
+
+        }
     },
 
     created() {
-    }
+        if(this.user != undefined)
+        {
+            
+        window.Echo.private(`friendrequest.${this.user.id}`)
+        .listen('FriendRequest', (e) => {
+             console.log(e); 
+             this.$store.dispatch('recieverequest',e); 
+        });
+        window.Echo.private(`chat.${this.user.id}`)
+        .listen('chat.this.user().id', (e) => {
+             console.log(e);  
+        });
+        }
+        this.resize()
+
+        console.log(this.$store.state.list);
+
+    },
     
 })
 </script>

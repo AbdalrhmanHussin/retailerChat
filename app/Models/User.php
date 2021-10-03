@@ -229,9 +229,9 @@ class User extends Authenticatable
         return result::repsonse(true);
     }
 
-    static function notfriends($user=1,$start=0,$end=5)
+    static function notfriends($user=1,$start=0,$end=10,$like='')
     {
-        $friends = DB::select("SELECT * FROM users where id <> $user AND id NOT IN (SELECT user_id from friends where friend_id = $user ) AND id NOT IN (SELECT friend_id from friend_request where user_id = $user ) limit $start,$end");
+        $friends = DB::select("SELECT * FROM users where name LIKE '%$like%' AND id <> $user  and id <> $user AND id NOT IN (SELECT user_id from friends where friend_id = $user ) AND id NOT IN (SELECT friend_id from friend_request where user_id = $user ) limit $start,$end");
 
         return $friends;
     }
@@ -244,6 +244,12 @@ class User extends Authenticatable
             return $users;
 
         }
+    }
+
+    static function removePending($friendid)
+    {
+        $currentUser = Auth::id();
+        DB::table('friend_request')->where(['user_id'=>$currentUser,'friend_id'=>$friendid])->delete();
     }
 
     static function request($id)
@@ -264,11 +270,71 @@ class User extends Authenticatable
         }
     }
 
+    static function getrequest()
+    {
+        // $requests = DB::select('SELECT users.* FROM user,friend_id where id in (SELECT * FROM )');
+        $requests = User::with('friendrequest')->whereId(Auth::id())->get();
+        return $requests;
+    }
+
+    static function handleRequest($user,$action)
+    {
+        $request = DB::table('friend_request')
+                     ->where(['user_id' => $user,'friend_id'=>Auth::id()]);
+        if(!empty($request->get()->toArray()))
+        {
+            if($action == 'accept')
+            {
+               $request->delete();
+               self::addFriend(Auth::id(),$user);   
+            }
+            else 
+            {
+                $request->delete();
+            }
+        } else {
+            dd('not found');
+        }
+        
+    }
+
+    static function addFriend($user1,$user2)
+    {
+        DB::table('friends')->insert([
+            [
+                'user_id'   => $user1,
+                'friend_id' => $user2
+            ],
+            [
+                'user_id'   => $user2,
+                'friend_id' => $user1
+            ]
+        ]);
+
+        $unique_identifer = uniqid('private'.$user1.$user2);
+        DB::table('rooms')->insert([
+            [
+                'room_unique' => $unique_identifer,
+                'user_id' => $user1
+            ],
+            [
+                'room_unique' => $unique_identifer,
+                'user_id' => $user2
+            ]
+        ]);
+    }
+
     //relations
 
     public function pendingUsers()
     {
         return $this->belongsToMany(User::class,'friend_request','user_id','friend_id');
+    }
+
+    public function friendrequest()
+    {
+        return $this->belongsToMany(User::class,'friend_request','friend_id','user_id');
+
     }
 
 }

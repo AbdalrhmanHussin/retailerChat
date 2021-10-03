@@ -3,6 +3,7 @@
     width: 70%;
     height: 100vh;
     overflow: hidden;
+    background: var(--BodyColor);
 }
 .room  .user-img {
     width: 40px;
@@ -173,4 +174,41 @@
 .room .messages .message.active 
 {
     flex-direction: row-reverse;
+}
+
+@media screen and (max-width:1200px) {
+    .room {
+        position: absolute !important;
+        width: 100% !important;
+    }
+    .empty {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width:480px) {
+    ul.navbar-nav.flex-row.ml-auto.tools
+    {
+        position: absolute;
+        bottom: -45px;
+        width: 100%;
+        background: var(--SecColor);
+        left: 0;
+        padding: 10px;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .room .messages {
+        margin-top: 44px !important;
+    }
+
+    .room .chat-user {
+        margin: -14px 0;
+    }
+
+    .room .chatty .send {
+        width: 49px;
+        height: 40px;
+    }
 }

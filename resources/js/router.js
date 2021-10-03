@@ -11,7 +11,7 @@ import store from './store.js';
 import friends from './components/Pages/Layouts/friends';
 import pending from './components/Pages/Layouts/pending';
 import suggestions from './components/Pages/Layouts/suggestions';
-import request from './components/Pages/Layouts/request';
+import request from './components/Pages/Layouts/myrequest';
 
 const router = createRouter({
   history: createWebHistory(),

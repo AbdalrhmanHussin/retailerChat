@@ -34,7 +34,7 @@
         </div> 
         <input type="submit" value="Register Now" class="mt-3 w-100 form-btn">
         <div class="actions mt-3">
-           <router-link :to="{name:'register'}" class="fs-11 color-sv d-block">Already have account? Sign in</router-link>
+           <router-link :to="{name:'login'}" class="fs-11 color-sv d-block">Already have account? Sign in</router-link>
         </div>
      </form>
   </div>

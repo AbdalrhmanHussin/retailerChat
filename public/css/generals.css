@@ -6,7 +6,9 @@
 @import url(room.css);
 @import url(loader.css);
 @import url(auth.css);
-:root {
+
+:root,
+.layout-chatter {
 --BodyColor: #262e35;
 --SecColor: #36404a;
 --logo: #7269ef;
@@ -30,10 +32,22 @@
 --sl-dark-red: #770909;
 }
 
+.layout-chatter.light {
+--SecColor: #fff;
+--text: #878a92;
+--white: #000;
+--list:#f7f7ff;
+--bs-gray-200: #495057;
+--BodyColor:#f3f3f3;
+--bs-dark: #ccc;
+}
+
+
 body {
     background-color: var(--BodyColor);
     font-family: 'Public Sans', sans-serif;
     color: var(--white);
+    overflow: hidden;
 }
 
 .ml-auto {
