@@ -22917,7 +22917,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   cluster: 'eu',
   forceTLS: true
 });
-window.Echo["private"]("friendrequest.".concat(undefined.user.id)).listen('FriendRequest', function (e) {
+window.Echo["private"]("friendrequest.1").listen('FriendRequest', function (e) {
   console.log(e);
 
   _this.$store.dispatch('recieverequest', e);

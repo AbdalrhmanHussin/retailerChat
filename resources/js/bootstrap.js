@@ -40,7 +40,7 @@ window.Echo = new Echo({
     forceTLS: true
 });
 
-window.Echo.private(`friendrequest.${this.user.id}`)
+window.Echo.private(`friendrequest.1`)
 .listen('FriendRequest', (e) => {
      console.log(e); 
      this.$store.dispatch('recieverequest',e); 
