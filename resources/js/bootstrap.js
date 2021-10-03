@@ -39,12 +39,3 @@ window.Echo = new Echo({
     cluster: 'eu',
     forceTLS: true
 });
-
-window.Echo.private(`friendrequest.1`)
-.listen('FriendRequest', (e) => {
-     console.log(e); 
-     this.$store.dispatch('recieverequest',e); 
-});
-
-console.log(process.env.MIX_PUSHER_APP_KEY,process.env.MIX_PUSHER_APP_CLUSTER)
-

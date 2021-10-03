@@ -22879,8 +22879,6 @@ app.use(_store_js__WEBPACK_IMPORTED_MODULE_2__["default"]).use(_router_js__WEBPA
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
-var _this = undefined;
-
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -22917,12 +22915,6 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   cluster: 'eu',
   forceTLS: true
 });
-window.Echo["private"]("friendrequest.1").listen('FriendRequest', function (e) {
-  console.log(e);
-
-  _this.$store.dispatch('recieverequest', e);
-});
-console.log("", "");
 
 /***/ }),
 
