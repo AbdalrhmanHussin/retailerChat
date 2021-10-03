@@ -18,3 +18,7 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('friendrequest.{userid}', function ($user) {
     return ['name'=>$user['name']];
 });
+
+Broadcast::channel('chat.{userid}', function ($user) {
+    return ['name'=>$user['name']];
+});
