@@ -40,3 +40,5 @@ window.Echo = new Echo({
     forceTLS: true
 });
 
+console.log(process.env.MIX_PUSHER_APP_KEY,process.env.MIX_PUSHER_APP_CLUSTER)
+
