@@ -22915,6 +22915,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   cluster: "eu",
   forceTLS: true
 });
+console.log("d45fe847f1d7c637524c", "eu");
 
 /***/ }),
 
