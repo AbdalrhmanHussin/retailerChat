@@ -6,7 +6,7 @@
                     <img src="/images/system/logo.svg">
                 </a>
                 <ul class="menu d-flex flex-direction-column-lg  justify-content-center-md w-100">
-                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item">
+                    <router-link :to="{name:'profile'}" active-class="active" class="menu-item">
                         <li class="p-2">
                             <i class="ri-user-3-line"></i>
                         </li>
@@ -49,7 +49,7 @@
             </div>
         </div>
         <transition name="fade">
-            <loading-screen v-if="loadstate"></loading-screen>
+            <model-overlay v-if="this.$store.state.model_overlay"></model-overlay>
         </transition>
     </div>
 </template>
@@ -57,6 +57,7 @@
 <script>
 import room from '../Pages/Layouts/roomLayout.vue'
 import loadingScreen from './Layouts/loadingScreen.vue'
+import modelOverlay from './Layouts/model-overlay.vue'
 import {mapGetters} from 'vuex';
 export default ({
     data() {
@@ -67,7 +68,8 @@ export default ({
     },
     components: {
         'room': room,
-        'loading-screen': loadingScreen
+        'loading-screen': loadingScreen,
+        'model-overlay': modelOverlay
     },
 
     computed: {
@@ -131,7 +133,6 @@ export default ({
             
         window.Echo.private(`friendrequest.${this.user.id}`)
         .listen('FriendRequest', (e) => {
-             console.log(e); 
              this.$store.dispatch('recieverequest',e); 
         });
         window.Echo.private(`chat.${this.user.id}`)
@@ -140,9 +141,6 @@ export default ({
         });
         }
         this.resize()
-
-        console.log(this.$store.state.list);
-
     },
     
 })

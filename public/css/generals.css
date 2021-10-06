@@ -6,6 +6,10 @@
 @import url(room.css);
 @import url(loader.css);
 @import url(auth.css);
+@import url(profile.css);
+@import url(filepond.css);
+
+
 
 :root,
 .layout-chatter {
@@ -286,3 +290,92 @@ grid-template-rows: 75% 25%;
 label {
     cursor: pointer;
 }
+
+.btn {
+    color: var(--white) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--SecColor) !important;
+}
+
+.list-input {
+    padding: 9px 0 9px 37px;
+    background: var(--SecColor);
+    border: navajowhite;
+}
+
+.model-overlay {
+    height: 100%;
+    background: #0000009e;
+    z-index: 10;
+}
+
+.model-overlay .modal {
+    display: block !important;
+}
+
+.model-overlay .modal .modal-content {
+    background-color: var(--BodyColor);
+    border-radius: 0;
+}
+
+.model-overlay .modal .modal-content .modal-header,
+.model-overlay .modal .modal-content .modal-footer{
+    border-bottom-color: var(--borderColor) !important;
+    border-top-color: var(--borderColor) !important;
+}
+
+.model-overlay .modal .modal-content .modal-footer .btn {
+    background: var(--SecColor);
+    border: navajowhite;
+    border-radius: 0;
+    font-size: 12px; 
+}
+
+/* filepond */
+/* .filepond--drop-label {
+    transform: translate3d(0px, 0px, 0px);
+    opacity: 1;
+    background: var(--SecColor);
+    color: var(--white);
+    font-size: 12px;
+    height: 100%;
+}
+
+ul.filepond--list {
+    width: 100%;
+    left: 0;
+    border-radius: 0;
+    top: 4px;
+}
+
+.model-overlay  li#filepond--item-u534dkqtl {
+    height: 79px !important;
+}
+
+li.filepond--item {
+    margin: 0 !important;
+    background: var(--BodyColor) !important;
+
+}
+
+.filepond--file {
+    background: var(--BodyColor);
+    height: 66px !important;
+    border-radius: 0 !important;
+    
+}
+
+.filepond--file {
+    padding: 39px 10px !important;
+
+}
+
+.filepond--credits {
+    display: none;
+}
+
+fieldset.filepond--file-wrapper {
+    height: 62px !important;
+} */

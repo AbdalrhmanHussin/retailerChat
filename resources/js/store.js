@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
+import { useToast } from "vue-toastification";
+
 
 // Create a new store instance.
 const store = createStore({
@@ -10,6 +12,8 @@ const store = createStore({
 	 loading: false,
 	 allLoaded: false,
 	 screen: window.small,
+	 model: '',
+	 model_overlay: false,
 	 list: false,
 	 suggestions: [],
 	 pending:[],
@@ -19,7 +23,9 @@ const store = createStore({
 		 status: 'active',
 		 image: '/images/users/user1.jpg'
 	 },
+	 auth: 0,
 	 loadedUsers: [],
+	 errors: [],
      users: [
 		 {id:1,name:'Doris Brown',email:'DorisBrown@gmail.com',image:'/images/users/user1.jpg',status:'active',messages:[
 			{type:'text',content:'Hey Bud how are you',sender:true,time:'9/22/2021 2:03 am',readed:true},
@@ -38,7 +44,8 @@ const store = createStore({
 			{type:'text',content:'Hello',sender:false,time:'9/22/2021 13:10',readed:false}
 		 ]},
 	 ],
-	 fetched: ''
+	 fetched: '',
+	 user: []
   },
   getters: {
   	users: (state) => {
@@ -95,6 +102,11 @@ const store = createStore({
 	request(state)
 	{
 		return state.requestArr
+	},
+
+	getUser(state)
+	{
+		return state.user;
 	}
 
 
@@ -188,7 +200,6 @@ const store = createStore({
 
 		removepending({commit,state},data = {index: index,id: id})
 		{
-			console.log(data);
 			axios.post('/user/removepending',{friendid: data.id})
 			state.pending.splice(data.index,1);
 		},
@@ -201,8 +212,59 @@ const store = createStore({
 
 		recieverequest({state},user)
 		{
-			console.log(user);
 			state.requestArr.push(user['user']);
+		},
+
+		Auth({state})
+		{
+			if(state.auth == 0) 
+			{
+				return new Promise((resolve, reject) => {
+					axios.get('/user/authorized').then((res) => {
+						state.auth = 1;
+						resolve(res.data)
+					});
+				})
+			} else return true;
+		},
+
+		getUserData({state})
+		{
+			axios.get('/user/getuser').then((res) => {
+				state.user = res.data;
+				console.log(state.user);
+			});
+		},
+	
+		modify({state},payload = {})
+		{
+			console.log(payload.update);
+			axios.post('/user/update',payload).then((res)=>{
+				const toast = useToast();
+				
+				if(res.data.message)
+				{
+					if(payload.update == 'name')
+					{
+						toast.success("Your name has been changed", {
+							timeout: 2000
+						});
+					} 
+					else if(payload.update == 'password')
+					{
+						alert('here');
+						toast.success("Your password has been changed", {
+							timeout: 2000
+						});
+					}
+				} 
+				else 
+				{
+					state.errors = res.data.payload
+					console.log(state.errors);
+				}
+
+			})
 		}
  	}
 });

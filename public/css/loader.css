@@ -134,6 +134,8 @@
 .loader-spinner {
     position: relative;
 }
+
+/*Animation*/
 .loader-spinner-enter-active,
 .loader-spinner-leave-active {
     top: 15px;
@@ -162,6 +164,60 @@
 
 .list-enter-active,
 .list-leave-active{
+    transition: all 0.2s linear;
+}
+
+.list-enter-from,
+.list-leave-to {
+   opacity: 0;
+   transform: translateY(10px);   
+}
+
+.list-enter-to,
+.list-leave-from {
+    opacity: 1;
+    transform: translateY(0%);   
+}
+
+.list-enter-active,
+.list-leave-active{
+    transition: all 0.2s linear;
+}
+
+
+.fade-enter-from,
+.fade-leave-to {
+   opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+    opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active{
+    transition: all 0.2s linear;
+}
+
+.model-enter-from,
+.model-leave-to {
+   transform: translateY(29px);
+   opacity: 0;
+}
+
+.model-enter-to,
+.model-leave-from {
+    transform: translateY(0px);
+    opacity: 0.3;
+}
+
+.model-enter-active {
+    transition: all 0.2s linear;
+    transition-delay: 0.2s;
+}
+
+.model-leave-active {
     transition: all 0.2s linear;
 }
 

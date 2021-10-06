@@ -31,6 +31,8 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 import Echo from 'laravel-echo';
 
+localStorage.setItem('csrf',$('meta[name="csrf"]').prop('content'));
+
 window.Pusher = require('pusher-js');
 
 window.Echo = new Echo({

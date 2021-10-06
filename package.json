@@ -31,10 +31,17 @@
         "@vuelidate/core": "^2.0.0-alpha.26",
         "@vuelidate/validators": "^2.0.0-alpha.22",
         "bootstrap-vue": "^2.21.2",
+        "filepond": "^4.30.0",
+        "filepond-plugin-file-validate-type": "^1.2.6",
+        "filepond-plugin-image-preview": "^4.6.10",
+        "filepond-plugin-image-resize": "^2.0.10",
+        "filepond-plugin-image-validate-size": "^1.2.6",
         "lightgallery": "^2.2.1",
         "moment": "^2.29.1",
         "vue-chat-scroll": "^1.4.0",
+        "vue-filepond": "^7.0.2",
         "vue-router": "^4.0.11",
+        "vue-toastification": "^2.0.0-rc.1",
         "vuex": "^4.0.2"
     }
 }

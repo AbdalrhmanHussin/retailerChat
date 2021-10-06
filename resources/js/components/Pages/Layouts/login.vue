@@ -22,8 +22,8 @@
             <input class="form-control" type="password" id="password" required @focus="active ='password'" @blur="active = ''" v-model="form.password" ref="password" />
         </div>
         <div class="form-group d-flex align-items-center">
-          <input type="checkbox" class="remember position-relative" v-model="form.remember">
-          <label for="" class="fs-11 fw-600">Remember me</label>
+          <input type="checkbox" class="remember position-relative" v-model="form.remember" id="remember">
+          <label for="remember" class="fs-11 fw-600">Remember me</label>
         </div>
         <span class="error d-block w-100" v-if=" error.login">Wrong Credentials</span>
         <input type="submit" value="Login Now" class="mt-3 mb-3 w-100 form-btn">

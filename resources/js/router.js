@@ -11,7 +11,9 @@ import store from './store.js';
 import friends from './components/Pages/Layouts/friends';
 import pending from './components/Pages/Layouts/pending';
 import suggestions from './components/Pages/Layouts/suggestions';
+import profile from './components/Pages/Layouts/profile';
 import request from './components/Pages/Layouts/myrequest';
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -24,23 +26,40 @@ const router = createRouter({
           {path:'/reset/:token/:email',name:'reset',component:reset,props:true}
         ]},
         {path:'/chat',component:chatComponent,name:'chat',children: [
-          {path:'',component:userList,name:'myarea'},
+          {path:'',component:userList,name:'myarea',meta: {requiredAuth: true}},
           {path:'/friends',component:friends,name:'friends',children: [
-            {path:'/suggestions',component:suggestions,name:'suggestions'},
-            {path:'/pending',component:pending,name:'pending'}
-          ]},
-          {path:'/request',component:request,name:'request'}
-        ]}
+            {path:'/suggestions',component:suggestions,name:'suggestions',meta: {requiredAuth: true}},
+            {path:'/pending',component:pending,name:'pending',meta: {requiredAuth: true}}
+          ],meta: {requiredAuth: true}},
+          {path:'/request',component:request,name:'request',meta: {requiredAuth: true}},
+          {path:'/profile',component:profile,name:'profile',meta: {requiredAuth:true}}
+        ],meta: {requiredAuth: true}}
     ]},
   ],
 });
 
 router.beforeEach((to, from, next) => {
-  if(from.name == 'login' & to.name == 'chat')
-  {
-    store.commit('loadingPage',true)
+  if (to.matched.some(record => record.meta.requiredAuth)) {
+      if(store.state.auth == 0) 
+      {
+        store.commit('loadingPage',true)
+        store.dispatch('getUserData');
+      }
+      store.dispatch('Auth').then((res) =>{
+        if(res)
+        {
+          next()
+        }
+        else 
+        {
+           next({
+              path: '/'
+           })
+        }
+     })
+  } else {
+      next();
   }
-  next()
 });
 
 router.afterEach((to,from,next)=> {

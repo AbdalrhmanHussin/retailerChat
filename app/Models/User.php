@@ -11,8 +11,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class User extends Authenticatable
@@ -28,6 +30,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status'
     ];
 
     /**
@@ -49,7 +52,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    //setter function 
+    //variables 
     static $limit = 0;
 
     static $validate;
@@ -58,6 +61,9 @@ class User extends Authenticatable
 
     static $checkEmail = false;
 
+    static $similar;
+
+    //set limit value
     static function limit($limit) 
     {
        self::$limit = $limit;
@@ -65,6 +71,8 @@ class User extends Authenticatable
     }
 
     //getter functions 
+
+    //get a define amount of users
     static function get()
     {
         
@@ -74,6 +82,7 @@ class User extends Authenticatable
                  ->get();
     }
 
+    //add rule for incoming validaition request
     static function rules($values = [])
     {
         $rulesArr = [];
@@ -82,6 +91,8 @@ class User extends Authenticatable
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8|confirmed',
             'name'     => 'required|min:3',
+            'avatar'   => 'required|image',
+            'status'   => 'required'
         ];
 
         foreach($values as $key )
@@ -95,6 +106,7 @@ class User extends Authenticatable
         return $rulesArr;
     }
 
+    //validate inputs
     static function validate($values,$request)
     {
         $rules = self::rules($values);
@@ -108,10 +120,11 @@ class User extends Authenticatable
         else
              self::$validate = result::repsonse(true);
 
-
         return new self;
     }
 
+
+    //Authorized user
     static function login($user,$remember = false) 
     {
        if(Auth::attempt($user,$remember))
@@ -122,6 +135,7 @@ class User extends Authenticatable
         }
     }
 
+    //Register a new user
     static function register()
     {
         if(self::$validate['message'])
@@ -139,6 +153,7 @@ class User extends Authenticatable
             return self::$validate;
     }
 
+    //send mail
     static function mail($type,$data=[])
     {
         if($type == 'forget')
@@ -154,6 +169,7 @@ class User extends Authenticatable
         }
     }
 
+    //add a new reset token
     static function insertResetToken($token,$email)
     {
         DB::table('password_resets')->where(['email' => $email])->delete();
@@ -164,6 +180,7 @@ class User extends Authenticatable
         ]);
     }
 
+    //check if the provided token is valid
     static function checkToken($token,$email)
     {
         $call = DB::table('password_resets')
@@ -187,6 +204,7 @@ class User extends Authenticatable
         }
     }
 
+    //check that the provided email is registereted email
     static function checkEmail($datatocheck)
     {
         $check = User::where('email',$datatocheck)->get()->first();
@@ -324,6 +342,68 @@ class User extends Authenticatable
         ]);
     }
 
+    static function deleteFile($file) 
+    {
+        if(File::exists(public_path($file))){
+            File::delete(public_path($file));
+        }
+
+    }
+
+    static function modify($col,$name)
+    {  
+        if(self::$validate['message']) {
+            if($col == 'image')
+            {
+                self::deleteFile('images/users/'.Auth::user()->image.'.jpg');
+                
+            }
+
+            if($col == 'password' && (!self::$similar) )
+            {
+                return self::$validate;
+            }
+
+            $user = User::find(Auth::id());
+            if($col !== 'password') $user->$col = $name; else $user->$col = Hash::make($name['password']);
+            $user->save();
+            if($col !== 'image') return self::$validate;
+        } else {
+            if($col !== 'image') return self::$validate;
+        };
+        return new self;
+    }
+
+    static function image($file,$name,$path)
+    {
+        if(self::$validate)
+        { 
+            $file->move(public_path($path), $name);
+        }
+    }
+
+    //check if password giving similar to user password
+    static function similar($password,$hash)
+    {
+        if(password_verify($password,$hash))
+        {
+            self::$similar = true;
+            if(empty(self::$validate['payload']['password']))
+            {
+                self::$validate = result::repsonse(true,[]);
+            }
+        }
+        else
+        {
+            self::$similar = false;
+            self::$validate = result::repsonse(false,['password' => ['The password you enteried doesnt match our recored']]);
+        }
+
+        
+
+        return new self;
+
+    }
     //relations
 
     public function pendingUsers()
@@ -336,5 +416,6 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class,'friend_request','friend_id','user_id');
 
     }
+
 
 }

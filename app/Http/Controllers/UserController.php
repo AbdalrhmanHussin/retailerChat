@@ -124,6 +124,51 @@ class UserController extends Controller
         User::handleRequest($request->id,$request->action);
     }
 
+    public function authorized()
+    {
+        return Auth::check();
+    }
+
+    public function getUserData()
+    {
+        return Auth::user();
+    }
+
+    public function modifyData(Request $request)
+    {
+        if($request->update == 'image')
+        {
+            $name = $request->name.'.jpg';
+            $path = 'images/users';
+            $old_image = 'images/users/' . Auth::user()->image;
+            $user = User::validate(['avatar'],$request->only('avatar'))
+                            ->modify('image',$name)
+                            ->image($request->file('avatar'),$name,$path);
+        }
+        else if( $request->update == 'name')
+        {
+            $user = User::validate(['name'],['name' =>$request->value['name']])
+                ->modify('name',$request->value['name']);
+        }
+        else if($request->update == 'password')
+        {
+            $user = User::validate(['password'],['password' => $request->value['password']['password'],'password_confirmation' => $request->value['password']['password_confirmation']])
+                        ->similar($request->value['password']['oldpassword'],Auth::user()->password)
+                        ->modify('password',$request->value['password']);
+        } 
+        else if($request->update == 'status')
+        {
+            $user = User::validate(['status'],['status' => $request->value['status']])->modify('status',$request->value['status']);
+        }
+
+        return $user;
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+    }
+
     public function test(Request $request)
     {
         dd(User::with('test')->get());

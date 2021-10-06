@@ -4,6 +4,7 @@
     height: 100vh;
     overflow: hidden;
     background: var(--BodyColor);
+    transition: all .4s linear;
 }
 .room  .user-img {
     width: 40px;

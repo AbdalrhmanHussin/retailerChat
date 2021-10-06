@@ -6,6 +6,7 @@
     background-color: var(--SecColor);
     z-index: 9;
     box-shadow: 0 2px 4px rgb(15 34 58 / 12%);
+    transition: all .4s linear;
 }
 
 .side-menu .logo {
@@ -25,18 +26,19 @@
     font-size: 24px;
     color: var(--text);
     width: 56px;
-    height: 56px;
+    height: 108px;
     line-height: 56px;
     margin: 0 auto;
     border-radius: 8px;
-    padding: 42px 0;
+    padding: 7px 0;
     text-decoration: none;
-    transition:all .4s ease-in-out;
+    transition: all .4s ease-in-out;
 }
 
 
 .side-menu .menu li {
     list-style: none;
+    padding: 16px 0 !important;
 }
 
 .side-menu .menu  .active {

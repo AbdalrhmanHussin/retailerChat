@@ -1,7 +1,7 @@
 <template>
     <div class="loading-page d-flex flex-column justify-content-center align-items-center w-100 h-100 position-fixed top-0 left-0" >
         <transition name="loader-spinner">
-            <div class="loader-spinner" v-if="this.$store.state.loading">
+            <div class="loader-spinner">
                 <div class="load-logo">
                         <img src="/images/system/logo.svg" alt="logo">
                 </div>
