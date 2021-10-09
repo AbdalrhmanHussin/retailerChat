@@ -5,7 +5,7 @@
             <label class="ri-search-line position-absolute top-0 color-sv p-2 fs-14"></label>
             <input type="text" placeholder="Search users" class="form-control search fs-13 color-sv" v-model="userSearch">
         </form>
-        <div class="chats">
+        <div class="chats" v-if="users.length">
             <span class="d-block fs-13 mt-3 fw-600 color-sv">Recent</span>
             <div class="list w-100">
                 <div class="user-list-loaded" v-if="loaded" @scroll="scroll()" ref="chat">
@@ -13,15 +13,17 @@
                     :class="{'active': usersEleActive == index && roomid !== null}"
                     v-for="(user,index) in usersFilter" 
                     :key="index" 
-                    @click="usersEleActive = index;active(index);listDeclare()" >
+                    @click="usersEleActive = index;active(index,user['rooms'][0]['id']);listDeclare()" >
                         <div class="user-img position-relative" ref="user"> 
-                            <img :src="user.image" alt="user">
-                            <span class="status position-absolute" :class="{'active': user.status == 'active','busy':user.status == 'busy','danger': user.status == 'dis','offline':user.status == 'offline'}"></span>
+                            <img :src="'images/users/'+user.image" alt="user">
+                            <span class="status position-absolute" :class="{'active': user.status == 'active','busy':user.status == 'busy','danger': user.status == 'Do Not Disturb','offline':user.status == 'offline'}"></span>
                         </div>
                         <div class="user-info mx-2">
                             <h5 class="user-name fs-13 fw-600 mb-0">{{ user.name }}</h5>
-                            <p class="user-name fs-12 color-sv mb-0" :class="{'fw-900': !lastMessage(index).readed }">{{ lastMessage(index).content }}</p>
-                            <span class="d-block position-absolute top-0 right-0 fs-10 color-sv p-2">{{ getTiming(lastMessage(index).time) }}</span>
+                            <p class="user-name fs-12 color-sv mb-0" :class="{'fw-900': lastMessage(index)['readed'] }" v-if="lastMessage(index)">{{ lastMessage(index)['content'] }}</p>
+                            <span class="d-block position-absolute top-0 right-0 fs-10 color-sv p-2" v-if="lastMessage(index)">{{ getTiming(lastMessage(index)['created_at']) }}</span>
+                            <p class="user-name fs-12 color-sv mb-0"  v-if="!lastMessage(index)">Say hi to your new friend</p>
+
                         </div>
                     </div>
                 </div>
@@ -37,6 +39,7 @@
                 </div>
             </transition>
         </div>
+        <p class="no-friend fs-12 text-center color-sv mt-4" v-else> No friends to show </p>
         <span></span>
     </div>
 </template>
@@ -86,8 +89,14 @@ export default {
         {
             if(id <= this.users.length) 
             {
-
-                return this.users[id].messages.slice(-1)[0];
+                if(this.users[id]['rooms'][0]['messages'].length > 0)
+                {
+                    return this.users[id]['rooms'][0]['messages'][0];
+                } 
+                else {
+                    return false;
+                }
+               
             }
             else 
             {
@@ -114,8 +123,10 @@ export default {
             },2000);
         }, 
 
-        active(id) 
+        active(id,roomid) 
         {
+            console.log(roomid);
+            this.$store.state.roomid = roomid;
             this.$store.commit('active',id);
         },
 
@@ -159,7 +170,9 @@ export default {
     {
         this.loading();
         this.resize();
-        this.listDeclare()
+        this.listDeclare();
+        console.log(this.users);
+        console.log('counter:'+this.users.length);
     }
 }
 </script>

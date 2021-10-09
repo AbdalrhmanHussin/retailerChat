@@ -118,7 +118,7 @@ class User extends Authenticatable
         if($validate->fails()) 
             self::$validate = result::repsonse(false,$validate->errors()->messages());
         else
-             self::$validate = result::repsonse(true);
+            self::$validate = result::repsonse(true);
 
         return new self;
     }
@@ -340,6 +340,19 @@ class User extends Authenticatable
                 'user_id' => $user2
             ]
         ]);
+
+        $lastRoom = room::orderBy('id','DESC')->select('id')->first()['id'];
+
+        DB::table('user_room')->insert([
+            [
+                'user_id' => $user1,
+                'room_id' => $lastRoom
+            ],
+            [
+                'user_id' => $user2,
+                'room_id' => $lastRoom
+            ]
+        ]);
     }
 
     static function deleteFile($file) 
@@ -404,6 +417,13 @@ class User extends Authenticatable
         return new self;
 
     }
+
+    public static function messages()
+    {
+        $messages = DB::select('SELECT * FROM `messages` where room_id IN (SELECT id from rooms where user_id=6 ) order by id desc limit 1');
+        dd($messages);
+        return $messages;
+    }
     //relations
 
     public function pendingUsers()
@@ -416,6 +436,38 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class,'friend_request','friend_id','user_id');
 
     }
+
+    public function message() 
+    {
+        return $this->hasMany(messages::class)->take(1);
+    }
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id');
+    }
+
+    public function rooms()
+    {
+        return $this->belongsToMany(Room::class,'user_room','user_id','room_id');
+    }
+
+    public static function getInit()
+    {
+        //get room of auth user
+        $rooms =   DB::table('user_room')->where('user_id',Auth::id())->select('room_id')->get()->toArray();
+
+        //flatten the array
+        $roomArray = array_column(json_decode(json_encode($rooms), true),'room_id');
+
+        //get users friends and rooms belong to auth user with the last message 
+        $user = User::with(array('friends.rooms' => function($query) use ($roomArray){
+                    $query->whereIn('rooms.id',$roomArray);
+                },'friends.rooms.messages' => function($query) {
+                    $query->orderBy('created_at','Desc');
+                }))->whereId(Auth::id())->get()->toArray();
+        return $user;
+    }
+
 
 
 }

@@ -20727,6 +20727,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   watch: {
     status: function status() {
       this.select = false;
+      console.log(this.user);
       this.update('status', {
         status: this.status
       });
@@ -21074,7 +21075,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     //get the last message that has been send
     lastMessage: function lastMessage(id) {
       if (id <= this.users.length) {
-        return this.users[id].messages.slice(-1)[0];
+        if (this.users[id]['rooms'][0]['messages'].length > 0) {
+          return this.users[id]['rooms'][0]['messages'][0];
+        } else {
+          return false;
+        }
       } else {
         throw "Out of range,the maximum allowed id is ".concat(this.users.length);
       }
@@ -21098,7 +21103,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this2.loaded = true;
       }, 2000);
     },
-    active: function active(id) {
+    active: function active(id, roomid) {
+      console.log(roomid);
+      this.$store.state.roomid = roomid;
       this.$store.commit('active', id);
     },
     scroll: function scroll() {
@@ -21137,6 +21144,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.loading();
     this.resize();
     this.listDeclare();
+    console.log(this.users);
+    console.log('counter:' + this.users.length);
   }
 });
 
@@ -21156,12 +21165,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Pages_Layouts_roomLayout_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Pages/Layouts/roomLayout.vue */ "./resources/js/components/Pages/Layouts/roomLayout.vue");
 /* harmony import */ var _Layouts_loadingScreen_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Layouts/loadingScreen.vue */ "./resources/js/components/Pages/Layouts/loadingScreen.vue");
 /* harmony import */ var _Layouts_model_overlay_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Layouts/model-overlay.vue */ "./resources/js/components/Pages/Layouts/model-overlay.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm-bundler.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm-bundler.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -21179,7 +21191,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     'loading-screen': _Layouts_loadingScreen_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     'model-overlay': _Layouts_model_overlay_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
-  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_3__.mapGetters)(['roomid', 'window', 'loadstate', 'window'])), {}, {
+  computed: _objectSpread(_objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_4__.mapGetters)(['roomid', 'window', 'loadstate', 'window', 'users', 'defaultUsers'])), {}, {
     screen: function screen() {
       if (window.innerWidth > 992) {
         return true;
@@ -21213,9 +21225,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         localStorage.setItem('lightMode', true);
         this.light = true;
       }
-
-      console.log(this.light);
+    },
+    setUserDefault: function setUserDefault(id, user) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default().post("user/".concat(id)).then(function (res) {
+        console.log(res.data['payload']['status']);
+        user['status'] = res.data['payload']['status'];
+      });
     }
+  },
+  beforeCreate: function beforeCreate() {
+    console.log(this.$store.state.defaultUsersSettings);
   },
   created: function created() {
     var _this = this;
@@ -21229,6 +21248,55 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     }
 
+    Echo.join("retailer").here(function (active) {
+      _this.$store.state.users.forEach(function (user) {
+        var checkActive = active.findIndex(function (x) {
+          return x.id == user.id;
+        });
+
+        if (checkActive == -1) {
+          user['status'] = 'offline';
+        }
+      });
+    }).joining(function (user) {
+      var joiner = _this.users.findIndex(function (x) {
+        return x.id == user.id;
+      });
+
+      console.log(user, joiner);
+
+      if (joiner !== -1) {
+        console.log(_this.users[joiner]['status'], _this.defaultUsers[joiner]['status']);
+
+        _this.setUserDefault(user.id, _this.users[joiner]);
+
+        _this.users[joiner]['status'] = _this.getUserDefault(user.id);
+      }
+    }).leaving(function (user) {
+      var leaver = _this.users.findIndex(function (x) {
+        return x.id == user.id;
+      });
+
+      console.log(user, leaver);
+
+      if (leaver !== -1) {
+        _this.users[leaver]['status'] = 'offline';
+      }
+    }).listen('status', function (user) {
+      console.log(user['user'].id);
+
+      var userget = _this.users.findIndex(function (x) {
+        return x.id == user['user'].id;
+      });
+
+      console.log(_this.users[userget]);
+
+      if (userget != -1) {
+        _this.users[userget].status = user['user'].status;
+      }
+    }).error(function (error) {
+      console.error(error);
+    });
     this.resize();
   }
 });
@@ -22655,7 +22723,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }, _hoisted_3, 512
   /* NEED_PATCH */
   ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-    src: _ctx.active.image,
+    src: 'images/users/' + _ctx.active.image,
     alt: "user",
     "class": "w-100 h-100"
   }, null, 8
@@ -22842,6 +22910,7 @@ var _hoisted_3 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 );
 
 var _hoisted_4 = {
+  key: 0,
   "class": "chats"
 };
 
@@ -22867,22 +22936,31 @@ var _hoisted_11 = {
   "class": "user-name fs-13 fw-600 mb-0"
 };
 var _hoisted_12 = {
+  key: 1,
   "class": "d-block position-absolute top-0 right-0 fs-10 color-sv p-2"
 };
 var _hoisted_13 = {
+  key: 2,
+  "class": "user-name fs-12 color-sv mb-0"
+};
+var _hoisted_14 = {
   key: 0,
   "class": "loader w-100 d-flex position-relative justify-content-center"
 };
 
-var _hoisted_14 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_15 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "position-absolute w-100 d-flex loader-frame justify-content-center"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span")], -1
 /* HOISTED */
 );
 
-var _hoisted_15 = [_hoisted_14];
+var _hoisted_16 = [_hoisted_15];
+var _hoisted_17 = {
+  key: 1,
+  "class": "no-friend fs-12 text-center color-sv mt-4"
+};
 
-var _hoisted_16 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, null, -1
+var _hoisted_18 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, null, -1
 /* HOISTED */
 );
 
@@ -22903,7 +22981,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   /* NEED_PATCH */
   ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.userSearch]])], 32
   /* HYDRATE_EVENTS */
-  ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [_hoisted_5, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [$data.loaded ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+  ), _ctx.users.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_4, [_hoisted_5, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [$data.loaded ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
     key: 0,
     "class": "user-list-loaded",
     onScroll: _cache[2] || (_cache[2] = function ($event) {
@@ -22918,11 +22996,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       key: index,
       onClick: function onClick($event) {
         $data.usersEleActive = index;
-        $options.active(index);
+        $options.active(index, user['rooms'][0]['id']);
         $options.listDeclare();
       }
     }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-      src: user.image,
+      src: 'images/users/' + user.image,
       alt: "user"
     }, null, 8
     /* PROPS */
@@ -22930,7 +23008,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["status position-absolute", {
         'active': user.status == 'active',
         'busy': user.status == 'busy',
-        'danger': user.status == 'dis',
+        'danger': user.status == 'Do Not Disturb',
         'offline': user.status == 'offline'
       }])
     }, null, 2
@@ -22939,15 +23017,16 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     /* NEED_PATCH */
     ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", _hoisted_11, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(user.name), 1
     /* TEXT */
-    ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
+    ), $options.lastMessage(index) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", {
+      key: 0,
       "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["user-name fs-12 color-sv mb-0", {
-        'fw-900': !$options.lastMessage(index).readed
+        'fw-900': $options.lastMessage(index)['readed']
       }])
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.lastMessage(index).content), 3
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.lastMessage(index)['content']), 3
     /* TEXT, CLASS */
-    ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.getTiming($options.lastMessage(index).time)), 1
+    )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $options.lastMessage(index) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.getTiming($options.lastMessage(index)['created_at'])), 1
     /* TEXT */
-    )])], 10
+    )) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), !$options.lastMessage(index) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_13, "Say hi to your new friend")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])], 10
     /* CLASS, PROPS */
     , _hoisted_7);
   }), 128
@@ -22960,12 +23039,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     name: "load"
   }, {
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [$data.scrollLoading && !_ctx.loadfinish ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_13, _hoisted_15)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
+      return [$data.scrollLoading && !_ctx.loadfinish ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_14, _hoisted_16)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)];
     }),
     _: 1
     /* STABLE */
 
-  })]), _hoisted_16])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true);
+  })])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_17, " No friends to show ")), _hoisted_18])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true);
 }
 
 /***/ }),
@@ -23711,83 +23790,8 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
     auth: 0,
     loadedUsers: [],
     errors: [],
-    users: [{
-      id: 1,
-      name: 'Doris Brown',
-      email: 'DorisBrown@gmail.com',
-      image: '/images/users/user1.jpg',
-      status: 'active',
-      messages: [{
-        type: 'text',
-        content: 'Hey Bud how are you',
-        sender: true,
-        time: '9/22/2021 2:03 am',
-        readed: true
-      }, {
-        type: 'text',
-        content: 'Fine,And you',
-        sender: false,
-        time: '9/22/2021 2:05',
-        readed: true
-      }]
-    }, {
-      id: 2,
-      name: 'Mark Messer',
-      email: 'DorisBrown@gmail.com',
-      image: '/images/users/user2.jpg',
-      status: 'busy',
-      messages: [{
-        type: 'text',
-        content: 'Hey Bud how are you',
-        sender: true,
-        time: '9/22/2021 2:03',
-        readed: false
-      }, {
-        type: 'text',
-        content: 'Ok i Will send it to you',
-        sender: false,
-        time: '9/22/2021 2:05',
-        readed: true
-      }]
-    }, {
-      id: 3,
-      name: 'Jone Adam',
-      email: 'DorisBrown@gmail.com',
-      image: '/images/users/user3.jpg',
-      status: 'dis',
-      messages: [{
-        type: 'text',
-        content: 'Hey Bud how are you',
-        sender: true,
-        time: '9/22/2021 2:03',
-        readed: true
-      }, {
-        type: 'text',
-        content: 'Hello',
-        sender: false,
-        time: '9/22/2021 13:10',
-        readed: false
-      }]
-    }, {
-      id: 4,
-      name: 'Ken Adam1',
-      email: 'DorisBrown@gmail.com',
-      image: '/images/users/user4.jpg',
-      status: 'offline',
-      messages: [{
-        type: 'text',
-        content: 'Hey Bud how are you',
-        sender: true,
-        time: '9/22/2021 2:03',
-        readed: true
-      }, {
-        type: 'text',
-        content: 'Hello',
-        sender: false,
-        time: '9/22/2021 13:10',
-        readed: false
-      }]
-    }],
+    defaultUsersSettings: [],
+    users: [],
     fetched: '',
     user: []
   },
@@ -23853,6 +23857,8 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
     return state.requestArr;
   }), _defineProperty(_getters, "getUser", function getUser(state) {
     return state.user;
+  }), _defineProperty(_getters, "defaultUsers", function defaultUsers(state) {
+    return state.defaultUsersSettings;
   }), _getters),
   mutations: {
     listResize: function listResize(state) {
@@ -23895,10 +23901,26 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
     }
   },
   actions: {
-    getFriends: function getFriends() {},
-    getSuggestions: function getSuggestions(_ref) {
-      var commit = _ref.commit,
-          state = _ref.state;
+    getUserData: function getUserData(_ref) {
+      var state = _ref.state;
+      axios__WEBPACK_IMPORTED_MODULE_0___default().get('user/getuser').then(function (res) {
+        console.log(res.data);
+        state.user = {
+          email: res.data[0]['email'],
+          name: res.data[0]['name'],
+          image: res.data[0]['image'],
+          status: res.data[0]['status']
+        };
+
+        if (res.data[0]['friends'].length) {
+          state.defaultUsersSettings = res.data[0]['friends'];
+          state.users = res.data[0]['friends'];
+        }
+      });
+    },
+    getSuggestions: function getSuggestions(_ref2) {
+      var commit = _ref2.commit,
+          state = _ref2.state;
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
         start: 0,
         end: 10,
@@ -23908,34 +23930,34 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
         commit('suggestions', res.data);
       });
     },
-    friendRequest: function friendRequest(_ref2, data) {
-      var commit = _ref2.commit,
-          state = _ref2.state;
+    friendRequest: function friendRequest(_ref3, data) {
+      var commit = _ref3.commit,
+          state = _ref3.state;
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/request', {
         id: data.id
       });
       commit('pending', data.index);
     },
-    getrequest: function getrequest(_ref3) {
-      var commit = _ref3.commit,
-          state = _ref3.state;
+    getrequest: function getrequest(_ref4) {
+      var commit = _ref4.commit,
+          state = _ref4.state;
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/getrequest').then(function (res) {
         state.request = res.data.payload[0]['friendRequest'];
         commit('request', res.data.payload[0]['friendrequest']);
       });
     },
-    pending: function pending(_ref4, data) {
-      var commit = _ref4.commit,
-          state = _ref4.state;
+    pending: function pending(_ref5, data) {
+      var commit = _ref5.commit,
+          state = _ref5.state;
       axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/pending').then(function (res) {
         if (res.data.payload.length > 0) {
           state.pending = res.data.payload[0]['pending_users'];
         }
       });
     },
-    removepending: function removepending(_ref5) {
-      var commit = _ref5.commit,
-          state = _ref5.state;
+    removepending: function removepending(_ref6) {
+      var commit = _ref6.commit,
+          state = _ref6.state;
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
         index: index,
         id: id
@@ -23945,8 +23967,8 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
       });
       state.pending.splice(data.index, 1);
     },
-    submitrequest: function submitrequest(_ref6) {
-      var state = _ref6.state;
+    submitrequest: function submitrequest(_ref7) {
+      var state = _ref7.state;
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
         id: '',
         action: '',
@@ -23958,12 +23980,12 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
         action: data.action
       });
     },
-    recieverequest: function recieverequest(_ref7, user) {
-      var state = _ref7.state;
+    recieverequest: function recieverequest(_ref8, user) {
+      var state = _ref8.state;
       state.requestArr.push(user['user']);
     },
-    Auth: function Auth(_ref8) {
-      var state = _ref8.state;
+    Auth: function Auth(_ref9) {
+      var state = _ref9.state;
 
       if (state.auth == 0) {
         return new Promise(function (resolve, reject) {
@@ -23973,13 +23995,6 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
           });
         });
       } else return true;
-    },
-    getUserData: function getUserData(_ref9) {
-      var state = _ref9.state;
-      axios__WEBPACK_IMPORTED_MODULE_0___default().get('/user/getuser').then(function (res) {
-        state.user = res.data;
-        console.log(state.user);
-      });
     },
     modify: function modify(_ref10) {
       var state = _ref10.state;

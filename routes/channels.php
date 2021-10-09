@@ -22,3 +22,7 @@ Broadcast::channel('friendrequest.{userid}', function ($user) {
 Broadcast::channel('chat.{userid}', function ($user) {
     return ['name'=>$user['name']];
 });
+
+Broadcast::channel('retailer', function ($user) {
+    return ['id' => $user->id,'status' => $user->status];
+});

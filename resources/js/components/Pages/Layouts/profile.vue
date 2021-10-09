@@ -84,6 +84,7 @@ export default ({
         status() 
         {
             this.select = false;
+            console.log(this.user);
             this.update('status',{status: this.status});
         }
     },

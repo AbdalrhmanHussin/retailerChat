@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\FriendRequest;
+use App\Events\status;
 use App\Models\User;
 use App\result;
 use Exception;
@@ -159,6 +160,7 @@ class UserController extends Controller
         else if($request->update == 'status')
         {
             $user = User::validate(['status'],['status' => $request->value['status']])->modify('status',$request->value['status']);
+            broadcast(new status(['id' => Auth::id(),'status' => $request->value['status']] ));
         }
 
         return $user;
@@ -169,8 +171,19 @@ class UserController extends Controller
         Auth::logout();
     }
 
+    public function init()
+    {
+        $user = User::getInit();
+        return $user;
+    }
+
     public function test(Request $request)
     {
         dd(User::with('test')->get());
+    }
+
+    public function getRooms()
+    {
+        return User::find(Auth::id())->rooms()->get();
     }
 }

@@ -59,11 +59,12 @@ import room from '../Pages/Layouts/roomLayout.vue'
 import loadingScreen from './Layouts/loadingScreen.vue'
 import modelOverlay from './Layouts/model-overlay.vue'
 import {mapGetters} from 'vuex';
+import axios from 'axios';
 export default ({
     data() {
         return {
             user: JSON.parse(localStorage.getItem('user') || '{}'),
-            light: JSON.parse(localStorage.getItem('lightMode') || '{}')
+            light: JSON.parse(localStorage.getItem('lightMode') || '{}'),
         }
     },
     components: {
@@ -77,7 +78,9 @@ export default ({
           'roomid',
           'window',
           'loadstate',
-          'window'
+          'window',
+          'users',
+          'defaultUsers'
         ]),
 
         screen() {
@@ -104,6 +107,7 @@ export default ({
                 }
             });
         },
+
         user()
         {
             if(localStorage.getItem('user'))
@@ -122,24 +126,73 @@ export default ({
                 localStorage.setItem('lightMode',true);
                 this.light = true;
             }
-            console.log(this.light);
-
+        },
+        setUserDefault(id,user)
+        {
+            axios.post(`user/${id}`).then((res)=>{
+                console.log(res.data['payload']['status'])
+                user['status'] = res.data['payload']['status'];
+            });
         }
     },
-
+    beforeCreate()
+    {
+        console.log(this.$store.state.defaultUsersSettings)
+    },
     created() {
+        
         if(this.user != undefined)
         {
-            
         window.Echo.private(`friendrequest.${this.user.id}`)
         .listen('FriendRequest', (e) => {
              this.$store.dispatch('recieverequest',e); 
         });
         window.Echo.private(`chat.${this.user.id}`)
-        .listen('chat.this.user().id', (e) => {
-             console.log(e);  
-        });
+            .listen('chat.this.user().id', (e) => {
+                console.log(e);  
+            });
         }
+        Echo.join(`retailer`)
+        .here((active) => {
+          this.$store.state.users.forEach(user => {
+            let checkActive = active.findIndex((x) => x.id == user.id);
+            if(checkActive == -1)
+            {
+               
+                user['status'] = 'offline';
+            }
+          });
+        })
+        .joining((user) => {
+           let joiner = this.users.findIndex((x) => x.id == user.id);
+           console.log(user,joiner);
+           if(joiner !== -1)
+           {
+               console.log(this.users[joiner]['status'],this.defaultUsers[joiner]['status'])
+               this.setUserDefault(user.id,this.users[joiner]);
+               this.users[joiner]['status'] = this.getUserDefault(user.id);
+           }
+        })
+        .leaving((user) => {
+           let leaver = this.users.findIndex((x) => x.id == user.id);
+           console.log(user,leaver);
+           if(leaver !== -1)
+           {
+               this.users[leaver]['status'] = 'offline';
+           }
+        })
+        .listen('status', (user) => {
+            console.log(user['user'].id);
+            let userget = this.users.findIndex(x => x.id == user['user'].id);
+            console.log(this.users[userget]);
+            if(userget != -1)
+            {
+                this.users[userget].status = user['user'].status
+            }
+        })
+        .error((error) => {
+            console.error(error);
+        });
         this.resize()
     },
     

@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Models\room;
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,11 +24,11 @@ Route::post('/api',[UserController::class,'authorized']);
 
 Route::group(['prefix' => 'user'],function(){
     Route::get('/',[UserController::class,'Users']);
-    Route::get('/getuser',[UserController::class,'getUserData']);
+    Route::get('/getuser',[UserController::class,'init']);
     Route::get('/authorized',[UserController::class,'authorized']);
     Route::post('/login',[UserController::class,'login']);
     Route::post('/register',[UserController::class,'register']);
-    Route::get('/{user}',[UserController::class,'find']);
+    Route::post('/{user}',[UserController::class,'find']);
     Route::post('/forget',[UserController::class,'forget']);
     Route::post('/checktoken',[UserController::class,'checktoken']);
     Route::post('/changepassword',[UserController::class,'changepassword']);
@@ -38,9 +42,15 @@ Route::group(['prefix' => 'user'],function(){
     Route::post('/logout',[UserController::class,'logout']);
 });
 
+
 //socialite
 Route::get('/socialite/{drive}',[UserController::class,'socialite']);
 Route::get('/socialite/{drive}/redirect',[UserController::class,'resocialite']);
+
+
+Route::get('/test',function(){
+    dump(User::getInit());
+});
 
 Route::get('/{any}', function () {
     return view('welcome');

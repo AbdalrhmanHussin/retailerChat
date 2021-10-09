@@ -6,7 +6,7 @@
              </button>
              <div class="user-info d-flex">
                  <div class="user-img">
-                     <img :src="active.image" alt="user" class="w-100 h-100">
+                     <img :src="'images/users/'+active.image" alt="user" class="w-100 h-100">
                  </div>
                  <div class="user-info position-relative d-flex mx-3">
                      <h5 class="ml-2 fs-14 mb-0 d-flex align-items-center">{{ active.name }}</h5>

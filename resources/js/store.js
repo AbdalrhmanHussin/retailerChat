@@ -26,24 +26,8 @@ const store = createStore({
 	 auth: 0,
 	 loadedUsers: [],
 	 errors: [],
-     users: [
-		 {id:1,name:'Doris Brown',email:'DorisBrown@gmail.com',image:'/images/users/user1.jpg',status:'active',messages:[
-			{type:'text',content:'Hey Bud how are you',sender:true,time:'9/22/2021 2:03 am',readed:true},
-			{type:'text',content:'Fine,And you',sender:false,time:'9/22/2021 2:05',readed:true}
-		 ]},
-		 {id:2,name:'Mark Messer',email:'DorisBrown@gmail.com',image:'/images/users/user2.jpg',status:'busy',messages:[
-			{type:'text',content:'Hey Bud how are you',sender:true,time:'9/22/2021 2:03',readed:false},
-			{type:'text',content:'Ok i Will send it to you',sender:false,time:'9/22/2021 2:05',readed:true}
-		 ]},
-		 {id:3,name:'Jone Adam',email:'DorisBrown@gmail.com',image:'/images/users/user3.jpg',status:'dis',messages:[
-			{type:'text',content:'Hey Bud how are you',sender:true,time:'9/22/2021 2:03',readed:true},
-			{type:'text',content:'Hello',sender:false,time:'9/22/2021 13:10',readed:false}
-		 ]},
-		 {id:4,name:'Ken Adam1',email:'DorisBrown@gmail.com',image:'/images/users/user4.jpg',status:'offline',messages:[
-			{type:'text',content:'Hey Bud how are you',sender:true,time:'9/22/2021 2:03',readed:true},
-			{type:'text',content:'Hello',sender:false,time:'9/22/2021 13:10',readed:false}
-		 ]},
-	 ],
+	 defaultUsersSettings: [],
+     users: [],
 	 fetched: '',
 	 user: []
   },
@@ -107,6 +91,11 @@ const store = createStore({
 	getUser(state)
 	{
 		return state.user;
+	},
+
+	defaultUsers(state)
+	{
+		return state.defaultUsersSettings;
 	}
 
 
@@ -160,8 +149,22 @@ const store = createStore({
 
  	},
  	actions: {
-	 	getFriends()
+	 	getUserData({state})
 		{
+			axios.get('user/getuser').then((res)=>{
+				console.log(res.data);
+				state.user  = {
+					email: res.data[0]['email'],
+					name: res.data[0]['name'],
+					image: res.data[0]['image'],
+					status: res.data[0]['status']
+				}
+				if(res.data[0]['friends'].length)
+				{
+					state.defaultUsersSettings = res.data[0]['friends'];
+					state.users = res.data[0]['friends'];
+				}
+			});
 
 		},
 
@@ -226,14 +229,6 @@ const store = createStore({
 					});
 				})
 			} else return true;
-		},
-
-		getUserData({state})
-		{
-			axios.get('/user/getuser').then((res) => {
-				state.user = res.data;
-				console.log(state.user);
-			});
 		},
 	
 		modify({state},payload = {})
