@@ -1,6 +1,8 @@
+import axios from "axios";
+
 export default {
     methods: {
-        dateFormate({todayDate = false,ReqDate = '',reserveDistance=true,formate={day: true,month:true,year:true,hour:true,min:true}}) 
+        dateFormate({todayDate = false,ReqDate = '',reserveDistance=false,formate={day: true,month:true,year:true,hour:true,min:true}}) 
         {
             if(!todayDate && ReqDate.length == 0) throw 'Provide a date to formate'
             //today date
@@ -17,6 +19,7 @@ export default {
             let year    = dateReq.getFullYear();
             let period;
 
+
             
             let $date;
 
@@ -24,6 +27,7 @@ export default {
             {
                 $date =  `${tDay + '/' + tMonth + '/' + tYear}`
             } 
+
             else 
             {
                 let rMonth = undefined;
@@ -50,14 +54,14 @@ export default {
 
                 if(formate.day)
                 {
-                    if(tDay !== day && !reserveDistance && tYear !== year && tMonth !== month) {
+                    if(tDay !== day && !reserveDistance  && tMonth !== month) {
                         rDay = day;    
                     }
                 }
 
                 if(formate.month)
                 {
-                    if(tMonth !== month && !reserveDistance && tYear !== year) {
+                    if(tMonth !== month && !reserveDistance && tDay !== day) {
                         rMonth = month;
                     }
                 }
@@ -82,6 +86,24 @@ export default {
             }
 
             return $date;
+        },
+
+        textRender(text = text,classList = []) 
+        {
+            let textToArray = text.split(' ');
+            let exportedStr = '';
+            classList = classList.join(' ')
+
+            textToArray.forEach(text => {
+                if(new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(text)) {
+                    exportedStr += ` <a href="${text}" class="${classList}">${text}</a>`;
+                } else {
+                    exportedStr += ' '+text;
+                }
+            });
+
+            return exportedStr;
+
         }
     }
 }

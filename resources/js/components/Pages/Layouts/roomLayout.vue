@@ -14,18 +14,12 @@
                  </div>
              </div>
              <ul class="navbar-nav flex-row ml-auto tools">
-                 <li class="nav-item d-flex align-items-center">
-                     <i class="ri-search-line"></i>
-                 </li>
-                  <li class="nav-item d-flex align-items-center">
-                     <i class="ri-phone-line"></i>
-                 </li>
-                  <li class="nav-item d-flex align-items-center">
-                     <i class="ri-vidicon-line"></i>
-                 </li>
-                  <li class="nav-item d-flex align-items-center">
-                     <i class="ri-user-2-line"></i>
-                 </li>
+                <li class="nav-item d-flex align-items-center">
+                    <i class="ri-image-fill"></i>
+                </li>
+                <li class="nav-item d-flex align-items-center">
+                    <i class="ri-user-2-line"></i>
+                </li>
              </ul>
         </div>
         <emoji :active="emoji" @emojiadd="addEmoji"></emoji>

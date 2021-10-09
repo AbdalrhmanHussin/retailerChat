@@ -55,11 +55,13 @@
 </template>
 
 <script>
+
 import room from '../Pages/Layouts/roomLayout.vue'
 import loadingScreen from './Layouts/loadingScreen.vue'
 import modelOverlay from './Layouts/model-overlay.vue'
 import {mapGetters} from 'vuex';
 import axios from 'axios';
+
 export default ({
     data() {
         return {
@@ -87,7 +89,10 @@ export default ({
             if(window.innerWidth > 992)
             {
                 return true
-            } else {
+            } 
+            
+            else 
+            {
                 return false
             }
         }
@@ -97,12 +102,13 @@ export default ({
         resize()
         {
             window.addEventListener('resize',function(){
-                console.log(window.small && this.roomid !== null);
-
                 if(this.window > 1200)
                 {
                     return true;
-                } else {
+                } 
+                
+                else 
+                {
                     return false;
                 }
             });
@@ -116,42 +122,50 @@ export default ({
             }
               
         },
+
         lightmode()
         {
             if(this.light)
             {
                 localStorage.setItem('lightMode',false);
                 this.light = false;
-            } else {
+            } 
+            
+            else 
+            {
                 localStorage.setItem('lightMode',true);
                 this.light = true;
             }
         },
-        setUserDefault(id,user)
+
+        setUserDefault(id,user,addDefault)
         {
             axios.post(`user/${id}`).then((res)=>{
-                console.log(res.data['payload']['status'])
-                user['status'] = res.data['payload']['status'];
+                if(addDefault == 'status') user['status'] = res.data['payload']['status'];
             });
         }
     },
-    beforeCreate()
-    {
-        console.log(this.$store.state.defaultUsersSettings)
-    },
+
     created() {
         
         if(this.user != undefined)
         {
+         
+        //Channels Listeners
+
+        //Private Channels
         window.Echo.private(`friendrequest.${this.user.id}`)
         .listen('FriendRequest', (e) => {
              this.$store.dispatch('recieverequest',e); 
         });
+
         window.Echo.private(`chat.${this.user.id}`)
-            .listen('chat.this.user().id', (e) => {
+            .listen('NewMessage', (e) => {
                 console.log(e);  
             });
         }
+
+        //Presentation Channel
         Echo.join(`retailer`)
         .here((active) => {
           this.$store.state.users.forEach(user => {
@@ -165,34 +179,34 @@ export default ({
         })
         .joining((user) => {
            let joiner = this.users.findIndex((x) => x.id == user.id);
-           console.log(user,joiner);
+
            if(joiner !== -1)
            {
-               console.log(this.users[joiner]['status'],this.defaultUsers[joiner]['status'])
-               this.setUserDefault(user.id,this.users[joiner]);
+               this.setUserDefault(user.id,this.users[joiner],'status');
                this.users[joiner]['status'] = this.getUserDefault(user.id);
            }
+
         })
         .leaving((user) => {
            let leaver = this.users.findIndex((x) => x.id == user.id);
-           console.log(user,leaver);
+
            if(leaver !== -1)
            {
                this.users[leaver]['status'] = 'offline';
            }
+
         })
         .listen('status', (user) => {
-            console.log(user['user'].id);
             let userget = this.users.findIndex(x => x.id == user['user'].id);
-            console.log(this.users[userget]);
+
             if(userget != -1)
             {
                 this.users[userget].status = user['user'].status
             }
         })
-        .error((error) => {
-            console.error(error);
-        });
+
+        
+
         this.resize()
     },
     

@@ -70,7 +70,6 @@ class User extends Authenticatable
        return new self;
     }
 
-    //getter functions 
 
     //get a define amount of users
     static function get()
@@ -310,9 +309,7 @@ class User extends Authenticatable
             {
                 $request->delete();
             }
-        } else {
-            dd('not found');
-        }
+        } 
         
     }
 
@@ -357,7 +354,8 @@ class User extends Authenticatable
 
     static function deleteFile($file) 
     {
-        if(File::exists(public_path($file))){
+        if(File::exists(public_path($file)))
+        {
             File::delete(public_path($file));
         }
 
@@ -368,8 +366,7 @@ class User extends Authenticatable
         if(self::$validate['message']) {
             if($col == 'image')
             {
-                self::deleteFile('images/users/'.Auth::user()->image.'.jpg');
-                
+                self::deleteFile('images/users/'.Auth::user()->image.'.jpg');     
             }
 
             if($col == 'password' && (!self::$similar) )
@@ -381,7 +378,10 @@ class User extends Authenticatable
             if($col !== 'password') $user->$col = $name; else $user->$col = Hash::make($name['password']);
             $user->save();
             if($col !== 'image') return self::$validate;
-        } else {
+        } 
+        
+        else 
+        {
             if($col !== 'image') return self::$validate;
         };
         return new self;
@@ -421,7 +421,6 @@ class User extends Authenticatable
     public static function messages()
     {
         $messages = DB::select('SELECT * FROM `messages` where room_id IN (SELECT id from rooms where user_id=6 ) order by id desc limit 1');
-        dd($messages);
         return $messages;
     }
     //relations
@@ -441,6 +440,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(messages::class)->take(1);
     }
+    
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id');

@@ -17,6 +17,9 @@ import chatComponent from './components/Pages/chatComponent.vue'
 import VueChatScroll from 'vue-chat-scroll'
 import useVuelidate from '@vuelidate/core'
 import Toast from "vue-toastification";
+import vLinkify from 'v-linkify';
+
+
 // Import the CSS or use your own!
 import "vue-toastification/dist/index.css";
 
@@ -77,5 +80,6 @@ app.use(store)
    .use(VueChatScroll)
    .use(useVuelidate)
    .use(Toast)
+   .use(vLinkify)
    .mount("#app")
 

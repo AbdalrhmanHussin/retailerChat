@@ -1,5 +1,6 @@
 <template>
     <div class="userlist px-4 pt-4" v-if="this.$store.state.list">
+        <p v-html=" textBuffer('hello mate vue.org')"></p>
         <h4 class="fs-23 color-sv fw-600">Chats</h4>
         <form class="form mt-3 position-relative" @submit.prevent>
             <label class="ri-search-line position-absolute top-0 color-sv p-2 fs-14"></label>
@@ -13,7 +14,7 @@
                     :class="{'active': usersEleActive == index && roomid !== null}"
                     v-for="(user,index) in usersFilter" 
                     :key="index" 
-                    @click="usersEleActive = index;active(index,user['rooms'][0]['id']);listDeclare()" >
+                    @click="usersEleActive = index;active(user['id'],user['rooms'][0]['id']);listDeclare()" >
                         <div class="user-img position-relative" ref="user"> 
                             <img :src="'images/users/'+user.image" alt="user">
                             <span class="status position-absolute" :class="{'active': user.status == 'active','busy':user.status == 'busy','danger': user.status == 'Do Not Disturb','offline':user.status == 'offline'}"></span>
@@ -22,8 +23,15 @@
                             <h5 class="user-name fs-13 fw-600 mb-0">{{ user.name }}</h5>
                             <p class="user-name fs-12 color-sv mb-0" :class="{'fw-900': lastMessage(index)['readed'] }" v-if="lastMessage(index)">{{ lastMessage(index)['content'] }}</p>
                             <span class="d-block position-absolute top-0 right-0 fs-10 color-sv p-2" v-if="lastMessage(index)">{{ getTiming(lastMessage(index)['created_at']) }}</span>
-                            <p class="user-name fs-12 color-sv mb-0"  v-if="!lastMessage(index)">Say hi to your new friend</p>
-
+                            <p class="dummy-message fs-12 color-sv mb-0"  v-if="false">Say hi to your new friend</p>
+                            <div class="m-1 fs-12 fw-600 typing d-flex">
+                                <p class="mb-0">Typing</p>
+                                <div class="typing-indicator d-flex align-items-center">
+                                    <span class="ms-1"></span>
+                                    <span class="ms-1"></span>
+                                    <span class="ms-1"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -46,10 +54,16 @@
 
 <script>
 import dateFormate from '../../../helper.js';
+import textRender from '../../../helper.js';
 import {mapGetters} from 'vuex'
 import userLoad from './userLoad.vue'
+import { vLinkify as linkify } from  "v-linkify";
+
 
 export default {
+    directives: {
+      linkify
+    },
     data() {
         return {
             usersEleActive: 0,
@@ -57,6 +71,8 @@ export default {
             loaded: false,
             scrollLoading: false,
             screen: window.innerWidth,
+            userid: '',
+            text: 'Hello from vuejs.org'
         }
     },
 
@@ -93,11 +109,13 @@ export default {
                 {
                     return this.users[id]['rooms'][0]['messages'][0];
                 } 
+
                 else {
                     return false;
                 }
                
             }
+
             else 
             {
                 throw `Out of range,the maximum allowed id is ${this.users.length}`
@@ -108,12 +126,17 @@ export default {
         {
             let date = this.dateFormate({ReqDate: time});
             let setDate = '';
-            setDate += (date.month !== undefined) ? date.monthLet + ' ' : '';
             setDate += (date.day !== undefined) ? date.day + ' ' : '';
+            setDate += (date.month !== undefined) ? date.monthLet + ' ' : '';
             setDate += (date.year !== undefined) ? date.year + ' ' : '';
             setDate += (date.month == undefined) ? date.hour : '';
             setDate += (date.month == undefined) ? ':'+date.min + ' '+date.period: '';
             return `${setDate}`
+        },
+
+        textBuffer(text)
+        {
+            return this.textRender(text,['links']);
         },
 
         loading() 
@@ -123,11 +146,10 @@ export default {
             },2000);
         }, 
 
-        active(id,roomid) 
+        active(userid,roomid) 
         {
-            console.log(roomid);
             this.$store.state.roomid = roomid;
-            this.$store.commit('active',id);
+            this.$store.commit('active',userid);
         },
 
         scroll()
@@ -171,8 +193,7 @@ export default {
         this.loading();
         this.resize();
         this.listDeclare();
-        console.log(this.users);
-        console.log('counter:'+this.users.length);
+
     }
 }
 </script>

@@ -21,6 +21,16 @@ use Illuminate\Support\Facades\DB;
 //    return new App\Mail\forget();
 // });
 Route::post('/api',[UserController::class,'authorized']);
+Route::post('user/forget',[UserController::class,'forget']);
+Route::post('user/getrequest',[UserController::class,'getrequest']);
+Route::post('user/notfriends',[UserController::class,'notfriends']);
+Route::post('user/request',[UserController::class,'request']);
+Route::post('user/pending',[UserController::class,'pending']);
+
+
+
+
+
 
 Route::group(['prefix' => 'user'],function(){
     Route::get('/',[UserController::class,'Users']);
@@ -29,14 +39,9 @@ Route::group(['prefix' => 'user'],function(){
     Route::post('/login',[UserController::class,'login']);
     Route::post('/register',[UserController::class,'register']);
     Route::post('/{user}',[UserController::class,'find']);
-    Route::post('/forget',[UserController::class,'forget']);
     Route::post('/checktoken',[UserController::class,'checktoken']);
     Route::post('/changepassword',[UserController::class,'changepassword']);
-    Route::post('/notfriends',[UserController::class,'notfriends']);
-    Route::post('/request',[UserController::class,'request']);
-    Route::post('/pending',[UserController::class,'pending']);
     Route::post('/removepending',[UserController::class,'removePending']);
-    Route::post('/getrequest',[UserController::class,'getrequest']);
     Route::post('/submitrequest',[UserController::class,'submitRequest']);
     Route::post('/update',[UserController::class,'modifyData']);
     Route::post('/logout',[UserController::class,'logout']);

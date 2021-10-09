@@ -180,8 +180,13 @@
 }
 
 .list-enter-active,
-.list-leave-active{
+.list-leave-active,
+.list-move{
     transition: all 0.2s linear;
+}
+
+.list-leave-active {
+    position: absolute;
 }
 
 

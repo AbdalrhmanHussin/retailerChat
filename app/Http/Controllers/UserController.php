@@ -49,6 +49,7 @@ class UserController extends Controller
     {
         $data = [];
         $data['email'] = $request->only('email');
+        
         User::checkEmail($data['email'])->mail('forget',$data);
         return result::repsonse(true);
     }
@@ -89,7 +90,10 @@ class UserController extends Controller
         if(isset($auth))
         {
             $notfriends = User::notfriends($auth,$request->start,$request->end,$request->search);
-        } else {
+        } 
+        
+        else 
+        {
            dd('not login');
         }
         return $notfriends;
@@ -99,6 +103,7 @@ class UserController extends Controller
     {
         User::request($request->only('id'));
         Auth::user()->sendto=$request->only('id');
+
         Auth::user()->password = '';
         broadcast(new FriendRequest(Auth::user()));
     }
@@ -109,12 +114,18 @@ class UserController extends Controller
         return result::repsonse(true,$pending);
     }
 
+    /**
+     * Get friend requests of Auth user
+     */
     public function getrequest()
     {
         $request = User::getrequest();
         return result::repsonse(true,$request);
     }
 
+    /**
+     * Remove pending friend request
+     */
     public function removePending(Request $request)
     {
         User::removePending($request->only('friendid'));
@@ -124,7 +135,7 @@ class UserController extends Controller
     {
         User::handleRequest($request->id,$request->action);
     }
-
+    
     public function authorized()
     {
         return Auth::check();
@@ -141,22 +152,25 @@ class UserController extends Controller
         {
             $name = $request->name.'.jpg';
             $path = 'images/users';
-            $old_image = 'images/users/' . Auth::user()->image;
+
             $user = User::validate(['avatar'],$request->only('avatar'))
-                            ->modify('image',$name)
-                            ->image($request->file('avatar'),$name,$path);
+                        ->modify('image',$name)
+                        ->image($request->file('avatar'),$name,$path);
         }
+
         else if( $request->update == 'name')
         {
             $user = User::validate(['name'],['name' =>$request->value['name']])
                 ->modify('name',$request->value['name']);
         }
+
         else if($request->update == 'password')
         {
             $user = User::validate(['password'],['password' => $request->value['password']['password'],'password_confirmation' => $request->value['password']['password_confirmation']])
                         ->similar($request->value['password']['oldpassword'],Auth::user()->password)
                         ->modify('password',$request->value['password']);
         } 
+
         else if($request->update == 'status')
         {
             $user = User::validate(['status'],['status' => $request->value['status']])->modify('status',$request->value['status']);
@@ -171,6 +185,9 @@ class UserController extends Controller
         Auth::logout();
     }
 
+    /**
+     * Get the main info of Auth User: 'user','friends','rooms','last message in each room'
+     */
     public function init()
     {
         $user = User::getInit();
@@ -181,6 +198,7 @@ class UserController extends Controller
     {
         dd(User::with('test')->get());
     }
+
 
     public function getRooms()
     {

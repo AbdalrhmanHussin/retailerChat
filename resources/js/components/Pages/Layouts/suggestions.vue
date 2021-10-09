@@ -6,7 +6,7 @@
         </form>
         <load v-if="!load && suggestions.length == 0"></load>
         <div class="user-container">
-            <transition-group name="list" tag="div">
+            <transition-group name="list" tag="div" appear>
                 <div class="user-list list" v-for="(user,index) in suggestions" :key="user.id">
                     <div class="user d-flex w-100 mt-3 position-relative">
                         <div class="user-img position-relative" ref="user"> 

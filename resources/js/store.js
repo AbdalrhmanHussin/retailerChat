@@ -109,10 +109,11 @@ const store = createStore({
 		},
 
 		active: (state,id) => {
-			let user = state.users.find(x => x.id === id + 1);
-			state.activeRoom.name   = user.name;
-			state.activeRoom.status = user.status;
-			state.activeRoom.image = user.image;
+			let user = state.users.findIndex(x => x.id === id);
+			console.log(user);
+			state.activeRoom.name   = state.users[user].name;
+			state.activeRoom.status = state.users[user].status;
+			state.activeRoom.image  = state.users[user].image;
 			state.roomid = id;
 		},
 

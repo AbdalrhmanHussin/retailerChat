@@ -46,6 +46,10 @@
 --bs-dark: #ccc;
 }
 
+.links {
+    text-decoration: none;
+    color: var(--bs-blue);
+}
 
 body {
     background-color: var(--BodyColor);
