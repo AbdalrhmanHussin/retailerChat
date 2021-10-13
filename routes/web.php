@@ -69,7 +69,7 @@ Route::get('/socialite/{drive}/redirect',[UserController::class,'resocialite']);
 
 
 Route::get('/test',function(){
-    dump(User::getFriend(6));
+    dump(User::getInit());
 });
 
 Route::get('/{any}', function () {
