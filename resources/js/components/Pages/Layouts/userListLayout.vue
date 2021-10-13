@@ -222,9 +222,6 @@ export default {
         this.loading();
         this.resize();
         this.listDeclare();
-
-        console.log(this.$store.state.users)
-
         //listen to typing events 
         Echo.private(`chat.${this.getUser.id}`)
         .listenForWhisper('typing', (e) => {
