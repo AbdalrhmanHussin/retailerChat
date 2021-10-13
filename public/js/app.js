@@ -24236,6 +24236,7 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
             e['rooms'][0]['messages'] = [];
           });
           state.users = res.data[0]['friends'];
+          console.log(state.users);
         }
       });
     },

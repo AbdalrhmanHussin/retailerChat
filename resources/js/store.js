@@ -176,11 +176,15 @@ const store = createStore({
 				if(res.data[0]['friends'].length)
 				{
 					state.defaultUsersSettings = res.data[0]['friends'];
+
 					res.data[0]['friends'].forEach((e) => {
 						e['typing'] = false
 						e['rooms'][0]['messages'] = []
 					});
+
 					state.users = res.data[0]['friends'];
+
+					console.log(state.users);
 				}
 			});
 
