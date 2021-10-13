@@ -24110,7 +24110,8 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
   getters: (_getters = {
     users: function users(state) {
       state.loadedUsers.push(state.users.slice(0, 14));
-      return state.loadedUsers[0];
+      console.log(state.users);
+      return state.users;
     },
     fetched: function fetched(state) {},
     loadfinish: function loadfinish(state) {

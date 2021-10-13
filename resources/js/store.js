@@ -37,7 +37,8 @@ const store = createStore({
   getters: {
   	users: (state) => {
 		state.loadedUsers.push(state.users.slice(0,14));
-		return state.loadedUsers[0];
+		console.log(state.users);
+		return state.users;
 	},
 
 	fetched: (state) => {
@@ -184,7 +185,7 @@ const store = createStore({
 
 					state.users = res.data[0]['friends'];
 				}
-				
+
 			});
 
 		},
