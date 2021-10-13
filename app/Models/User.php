@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\room;
+use App\Models\Messages;
 
 class User extends Authenticatable
 {
@@ -474,7 +476,7 @@ class User extends Authenticatable
         $rooms =   DB::table('user_room')->where('user_id',Auth::id())->select('room_id')->get()->toArray();
         //flatten the array
         $roomArray = array_column(json_decode(json_encode($rooms), true),'room_id');
-        return $this->belongsToMany(Room::class,'user_room','user_id','room_id')->whereIn('rooms.id',$roomArray);
+        return $this->belongsToMany(room::class,'user_room','user_id','room_id')->whereIn('rooms.id',$roomArray);
     }
 
     public static function getInit()
