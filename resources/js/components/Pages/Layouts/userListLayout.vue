@@ -219,7 +219,7 @@ export default {
     
     created()
     {
-        console.log(this.getUser);
+        console.log(this.users);
         this.loading();
         this.resize();
         this.listDeclare();

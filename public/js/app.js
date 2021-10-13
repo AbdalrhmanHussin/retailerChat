@@ -21287,7 +21287,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   created: function created() {
     var _this5 = this;
 
-    console.log(this.getUser);
+    console.log(this.users);
     this.loading();
     this.resize();
     this.listDeclare(); //listen to typing events 
