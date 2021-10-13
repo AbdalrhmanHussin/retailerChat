@@ -44,7 +44,6 @@ router.beforeEach((to, from, next) => {
       if(store.state.auth == 0) 
       {
         store.commit('loadingPage',true);
-        store.dispatch('getUserData');
       } 
 
       store.dispatch('Auth').then((res) =>{

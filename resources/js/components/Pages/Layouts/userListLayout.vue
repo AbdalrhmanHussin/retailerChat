@@ -262,6 +262,11 @@ export default {
             this.job();
             user.typing = true;
         });
+    },
+
+    beforeCreate()
+    {
+        this.$store.dispatch('getUserData');
     }
 }
 </script>
