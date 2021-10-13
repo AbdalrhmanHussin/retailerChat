@@ -21287,6 +21287,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   created: function created() {
     var _this5 = this;
 
+    console.log(this.getUser);
     this.loading();
     this.resize();
     this.listDeclare(); //listen to typing events 
@@ -24031,8 +24032,6 @@ router.beforeEach(function (to, from, next) {
     }
 
     _store_js__WEBPACK_IMPORTED_MODULE_8__["default"].dispatch('Auth').then(function (res) {
-      console.log(res);
-
       if (res) {
         next();
       } else {
@@ -24235,7 +24234,6 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_3__.createStore)({
             e['rooms'][0]['messages'] = [];
           });
           state.users = res.data[0]['friends'];
-          console.log(state.users);
         }
       });
     },

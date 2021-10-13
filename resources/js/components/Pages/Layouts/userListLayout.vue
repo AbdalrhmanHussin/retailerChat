@@ -219,6 +219,7 @@ export default {
     
     created()
     {
+        console.log(this.getUser);
         this.loading();
         this.resize();
         this.listDeclare();
@@ -263,10 +264,5 @@ export default {
             user.typing = true;
         });
     },
-
-    beforeCreate()
-    {
-        this.$store.dispatch('getUserData');
-    }
 }
 </script>

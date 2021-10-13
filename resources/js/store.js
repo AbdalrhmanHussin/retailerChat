@@ -183,9 +183,8 @@ const store = createStore({
 					});
 
 					state.users = res.data[0]['friends'];
-
-					console.log(state.users);
 				}
+				
 			});
 
 		},
