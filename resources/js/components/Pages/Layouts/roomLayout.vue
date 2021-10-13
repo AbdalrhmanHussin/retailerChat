@@ -1,7 +1,10 @@
 <template>
     <div class="room position-relative w-100" :class="{'w-100': !this.$store.state.list}" v-if="roomid !== null">
         <div class="upper p-4 w-100 border-bottom d-flex position-relative">
-             <button @click="this.$store.state.roomid = null;this.$store.state.list = true" class="back" ref="back">
+             <button 
+             @click="this.$store.state.roomid = null;this.$store.state.list = true" 
+             class="back" 
+             ref="back">
                 <i class="ri-arrow-left-s-line"></i>
              </button>
              <div class="user-info d-flex">
@@ -13,20 +16,19 @@
                      <span class="status position-absolute  d-flex" :class="{'active': active.status == 'active','busy': active.status == 'busy','danger': active.status == 'dis','offline': active.status == 'offline'}"></span>
                  </div>
              </div>
-             <ul class="navbar-nav flex-row ml-auto tools">
-                <li class="nav-item d-flex align-items-center">
-                    <i class="ri-image-fill"></i>
-                </li>
-                <li class="nav-item d-flex align-items-center">
-                    <i class="ri-user-2-line"></i>
-                </li>
-             </ul>
         </div>
         <emoji :active="emoji" @emojiadd="addEmoji"></emoji>
-        <div class="chatty">
-            <div class="w-100 chat h-100" ref="chat">
-                <messages></messages>
+        <p class="chat-loader" v-if="scroll">Loading</p>
+        <div class="chatty position-relative">
+
+            <div class="w-100 chat h-100 position-relative" ref="chat" @scroll="scrollTop()">
+                <div class="chat-body ">
+                    <div v-for="(message,key) in findFriend['rooms'][0]['messages']" :key="key" v-for-callback:[loaded]="{key: key, array: findFriend['rooms'][0]['messages'], load: this.$store.state.firstLoad ,callback: wayDown}">
+                        <messages :message = "message" :key="key"></messages>
+                    </div>
+                </div>
             </div>
+
             <div class="chat-user w-100 border-top d-flex">
                 <div class="position-relative d-flex align-items-center px-3 w-100">
                     <span class="position-absolute fs-13 color-sv mb-3" v-if="placeholder && mssg.length == 0">Type your message here...</span>
@@ -34,11 +36,12 @@
                     <div class="emoji" @click="emojiToggler" :class="{'active': emoji}">
                         <i class="ri-emotion-happy-line"></i>
                     </div>
-                    <div class="send ml-2">
+                    <div class="send ml-2" @click="send()">
                         <i class="ri-send-plane-2-fill"></i>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </template>
@@ -46,6 +49,7 @@
 <script>
 import emoji from "./emoji.vue";
 import messages from './messages.vue';
+import textRender from '../../../helper.js';
 import {mapGetters} from 'vuex';
 
 export default ({
@@ -53,15 +57,24 @@ export default ({
         return {
             mssg: '',
             placeholder: true,
-            emoji: false
+            emoji: false,
+            loaded: true,
+            loading: false,
+            scroll: false,
+            heightChat: this.$refs.innerHeight
         }
     },
     computed: {
        ...mapGetters([
           'active',
           'roomid',
-          'window'
+          'window',
+          'getUser',
+          'userid',
+          'users',
+          'findFriend'
        ]),
+
        height: function() 
        {
            document.querySelector('.chat');
@@ -72,6 +85,16 @@ export default ({
        'emoji': emoji,
        'messages': messages
     },
+    watch: {
+        roomid()
+        {
+            this.loaded = true;
+            console.log(this.loaded);
+        },
+    },
+
+   
+
     methods: {
         emojiToggler()
         {
@@ -95,13 +118,83 @@ export default ({
                 }
             }
         },
+
+        wayDown()
+        {
+            if(this.loaded)
+            {
+                this.$refs.chat.scrollTop = document.querySelector('.chat-body').offsetHeight
+            } 
+            
+            else {
+                this.$refs.chat.scrollTop =   document.querySelector('.chat-body').offsetHeight - this.heightChat;
+            }
+
+            this.loading = false;
+        },
+
         typing()
         {
-            console.log('typing')
-            Echo.private(`chat.1`)
+            Echo.private(`chat.${this.$store.state.userid}`)
             .whisper('typing', {
-                name: 'typing'
+                id: this.getUser.id
             });
+        },
+
+        send()
+        {
+            let message = {
+                userid: this.getUser.id,
+                sendtoid: this.userid,
+                roomid: this.roomid,
+                content: this.mssg,
+                type: 'text'    
+            }
+
+            this.mssg = ''
+            
+            this.$store.dispatch('sendMessage',message);
+        },
+
+        scrollTop()
+        {
+            this.loading = true;
+            this.heightChat = document.querySelector('.chat-body').offsetHeight
+
+            
+            if(this.$refs.chat.scrollTop == 0)
+            {
+                this.loaded = false;
+                this.$store.dispatch('roomRender');
+            }
+        },
+
+        textBuffer(text)
+        {
+            return this.textRender(text,['links']);
+        },
+    },
+    directives: {
+        forCallback(el, binding) {
+            let element = binding.value
+            var key = element.key
+            var len = 0;
+             if (Array.isArray(element.array)) {
+                    len = element.array.length
+                }
+
+                else if (typeof element.array === 'object') {
+                    var keys = Object.keys(element.array)
+                    key = keys.indexOf(key)
+                    len = keys.length
+                }
+
+                if (key == len - 1) {
+                    if (typeof element.callback === 'function') {
+                        binding.loaded = true;
+                        element.callback()
+                    }
+                }
         }
     },
     mounted() {
@@ -109,7 +202,6 @@ export default ({
        {
             this.$refs.chat.scrollTop = this.$refs.chat.clientHeight * 1000000000;
        }
-       console.log(this.window.innerWidth);
     }
 })
 </script>

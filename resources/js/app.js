@@ -80,6 +80,5 @@ app.use(store)
    .use(VueChatScroll)
    .use(useVuelidate)
    .use(Toast)
-   .use(vLinkify)
    .mount("#app")
 

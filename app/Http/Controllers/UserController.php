@@ -134,6 +134,9 @@ class UserController extends Controller
     public function submitRequest(Request $request)
     {
         User::handleRequest($request->id,$request->action);
+        $user = ($request->action == 'accept') ? User::with('friend.rooms.messages')->where(['users.id' => Auth::id()])->get()->toArray() : false;
+        $user = ($user) ? result::repsonse(true,$user) : result::repsonse(false);
+        return $user;
     }
     
     public function authorized()

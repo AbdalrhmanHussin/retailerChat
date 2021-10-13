@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\UserController;
+use App\Models\Messages;
 use App\Models\room;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -17,34 +19,47 @@ use Illuminate\Support\Facades\DB;
 | contains the "web" middleware group. Now create something great!
 |
 */
-// Route::get('/email',function(){
-//    return new App\Mail\forget();
-// });
+
 Route::post('/api',[UserController::class,'authorized']);
-Route::post('user/forget',[UserController::class,'forget']);
-Route::post('user/getrequest',[UserController::class,'getrequest']);
-Route::post('user/notfriends',[UserController::class,'notfriends']);
-Route::post('user/request',[UserController::class,'request']);
-Route::post('user/pending',[UserController::class,'pending']);
 
+//Registerations system routes
+Route::group(['prefix'=>'auth'],function(){
+    Route::post('/login',[UserController::class,'login']);
+    Route::post('/register',[UserController::class,'register']);
+    Route::post('/forget',[UserController::class,'forget']);
+    Route::get('/getuser',[UserController::class,'init']);
+    Route::post('/logout',[UserController::class,'logout']);
+    //forget password token
+    Route::post('/checktoken',[UserController::class,'checktoken']);
+    //Authed user 
+    Route::get('/authorized',[UserController::class,'authorized']);
+    //get specific user
+    Route::post('/{user}',[UserController::class,'find']);
+    Route::get('/',[UserController::class,'Users']);   
+});
 
+Route::group(['middleware' => 'auth','prefix'=> 'message'],function(){
+    Route::post('/send',[MessagesController::class,'send']);
+    Route::post('/room',[MessagesController::class,'render']);
+});
 
+//Friends Zone Routes
+Route::group(['middleware' => 'auth','prefix'=> 'user'],function(){
+    Route::post('aquariance',[UserController::class,'notfriends']);
+    Route::post('send',[MessagesController::class,'send']);
+    Route::post('room',[MessagesController::class,'render']);
+    Route::post('pending',[UserController::class,'pending']);
+    Route::post('getrequest',[UserController::class,'getrequest']);
+    Route::post('request',[UserController::class,'request']);
+    Route::post('removepending',[UserController::class,'removePending']);
+    Route::post('submitrequest',[UserController::class,'submitRequest']);
+    Route::post('/update',[UserController::class,'modifyData']);
+});
 
 
 
 Route::group(['prefix' => 'user'],function(){
-    Route::get('/',[UserController::class,'Users']);
-    Route::get('/getuser',[UserController::class,'init']);
-    Route::get('/authorized',[UserController::class,'authorized']);
-    Route::post('/login',[UserController::class,'login']);
-    Route::post('/register',[UserController::class,'register']);
-    Route::post('/{user}',[UserController::class,'find']);
-    Route::post('/checktoken',[UserController::class,'checktoken']);
-    Route::post('/changepassword',[UserController::class,'changepassword']);
-    Route::post('/removepending',[UserController::class,'removePending']);
-    Route::post('/submitrequest',[UserController::class,'submitRequest']);
-    Route::post('/update',[UserController::class,'modifyData']);
-    Route::post('/logout',[UserController::class,'logout']);
+    
 });
 
 
@@ -54,7 +69,7 @@ Route::get('/socialite/{drive}/redirect',[UserController::class,'resocialite']);
 
 
 Route::get('/test',function(){
-    dump(User::getInit());
+    dump(User::getFriend(6));
 });
 
 Route::get('/{any}', function () {

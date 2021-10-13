@@ -15,8 +15,9 @@ class CreateMessagesTable extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->enum('type',['text','image','link']);
+            $table->enum('type',['text','image','link'])->default('text');
             $table->string('content');
+            $table->enum('readed',[true,'false'])->default('false');
             $table->foreignId('user_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('room_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

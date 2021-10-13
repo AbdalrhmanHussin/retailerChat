@@ -7,34 +7,36 @@ import { useToast } from "vue-toastification";
 // Create a new store instance.
 const store = createStore({
   state: {
-	 roomid: null,
-	 load: 4,
-	 loading: false,
-	 allLoaded: false,
-	 screen: window.small,
-	 model: '',
-	 model_overlay: false,
-	 list: false,
-	 suggestions: [],
-	 pending:[],
-	 requestArr:[],
-	 activeRoom: {
-		 name: 'Doris Brown',
-		 status: 'active',
-		 image: '/images/users/user1.jpg'
-	 },
-	 auth: 0,
-	 loadedUsers: [],
-	 errors: [],
-	 defaultUsersSettings: [],
-     users: [],
-	 fetched: '',
-	 user: []
+	roomid: null,
+	userid: null,
+	loadMess: false,
+	load: 4,
+	loading: false,
+	allLoaded: false,
+	screen: window.small,
+	model: '',
+	model_overlay: false,
+	list: false,
+	suggestions: [],
+	pending:[],
+	requestArr:[],
+	activeRoom: {
+		name: 'Doris Brown',
+		status: 'active',
+		image: '/images/users/user1.jpg'
+	},
+	auth: 0,
+	loadedUsers: [],
+	errors: [],
+	defaultUsersSettings: [],
+	users: [],
+	fetched: '',
+	user: [],
+	firstLoad: true
   },
   getters: {
   	users: (state) => {
 		state.loadedUsers.push(state.users.slice(0,14));
-		console.log(state.loadedUsers)
 		return state.loadedUsers[0];
 	},
 
@@ -67,7 +69,6 @@ const store = createStore({
 	},
 
 	window: () => {
-		console.log(window.innerWidth)
 		return window;
 	},
 
@@ -93,14 +94,28 @@ const store = createStore({
 		return state.user;
 	},
 
+	userid(state)
+	{
+		return state.userid;
+	},
+
 	defaultUsers(state)
 	{
 		return state.defaultUsersSettings;
-	}
+	},
+
+	findFriend(state)
+	{
+		let user = state.users.find((x) => {
+			return x.id == state.userid;
+		});
+		return user;
+	},
 
 
   },
 	mutations: {
+
 		listResize(state) {
 			state.listGetter();
 		},
@@ -110,11 +125,9 @@ const store = createStore({
 
 		active: (state,id) => {
 			let user = state.users.findIndex(x => x.id === id);
-			console.log(user);
 			state.activeRoom.name   = state.users[user].name;
 			state.activeRoom.status = state.users[user].status;
 			state.activeRoom.image  = state.users[user].image;
-			state.roomid = id;
 		},
 
 		loadUsers(state,index) {
@@ -135,7 +148,6 @@ const store = createStore({
 		suggestions(state,payload)
 		{
 			state.suggestions = payload;
-			console.log(state.suggestions);
 		},
 
 		pending(state,index) {
@@ -152,17 +164,22 @@ const store = createStore({
  	actions: {
 	 	getUserData({state})
 		{
-			axios.get('user/getuser').then((res)=>{
-				console.log(res.data);
+			axios.get('auth/getuser').then((res)=>{
 				state.user  = {
+					id: res.data[0]['id'],
 					email: res.data[0]['email'],
 					name: res.data[0]['name'],
 					image: res.data[0]['image'],
 					status: res.data[0]['status']
 				}
+
 				if(res.data[0]['friends'].length)
 				{
 					state.defaultUsersSettings = res.data[0]['friends'];
+					res.data[0]['friends'].forEach((e) => {
+						e['typing'] = false
+						e['rooms'][0]['messages'] = []
+					});
 					state.users = res.data[0]['friends'];
 				}
 			});
@@ -171,7 +188,7 @@ const store = createStore({
 
 		getSuggestions({commit,state},data={start:0,end:10,search:''})
 		{
-			axios.post('/user/notfriends',data).then((res)=>{
+			axios.post('/user/aquariance',data).then((res)=>{
 					commit('suggestions',res.data);
 				});
 		},
@@ -211,12 +228,24 @@ const store = createStore({
 		submitrequest({state},data = {id:'',action:'',index:''})
 		{
 			state.requestArr.splice(data.index,1);
-			axios.post('user/submitrequest',{id:data.id,action:data.action});
+			axios.post('user/submitrequest',{id:data.id,action:data.action}).then((res) => {
+				console.log(res.data);
+				state.user.push(res.data);
+			});
 		},
 
 		recieverequest({state},user)
 		{
-			state.requestArr.push(user['user']);
+			let userReq = state.requestArr.find((x) => {
+				return x.id == user['user'].id;
+			});
+
+
+			if(!userReq)
+			{
+				state.requestArr.push(user['user']);
+				this.soundsNotification('fr');
+			}
 		},
 
 		Auth({state})
@@ -224,8 +253,12 @@ const store = createStore({
 			if(state.auth == 0) 
 			{
 				return new Promise((resolve, reject) => {
-					axios.get('/user/authorized').then((res) => {
-						state.auth = 1;
+					axios.get('/auth/authorized').then((res) => {
+						console.log(res);
+						if(res.data)
+						{
+							state.auth = 1;
+						}  
 						resolve(res.data)
 					});
 				})
@@ -234,7 +267,6 @@ const store = createStore({
 	
 		modify({state},payload = {})
 		{
-			console.log(payload.update);
 			axios.post('/user/update',payload).then((res)=>{
 				const toast = useToast();
 				
@@ -257,11 +289,45 @@ const store = createStore({
 				else 
 				{
 					state.errors = res.data.payload
-					console.log(state.errors);
 				}
 
 			})
-		}
+		},
+
+		sendMessage({state,getters},message)
+		{
+			axios.post('message/send',message)
+			let messages = {
+				type: 'text',
+				content: message.content,
+				readed: true,
+				user_id: getters.getUser.id,
+				created_at: Date.now()
+			}
+
+			getters.findFriend['rooms'][0]['messages'].push(messages);
+			getters.findFriend['rooms'][0]['latest_message'] = messages;
+		},
+
+
+		roomRender({state,getters})
+		{
+			let from = getters.findFriend['rooms'][0]['messages'].length;
+			
+			axios.post('/message/room',{room: state.roomid,from:from}).then((res) => {
+				let user = state.users.find((x) => {
+					return x.id == state.userid
+				});
+
+				res.data[0]['get_messages'].forEach((x) => {
+					user['rooms'][0]['messages'].unshift(x);
+				})
+
+			});
+		},
+
+		
+
  	}
 });
 export default store;

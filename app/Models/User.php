@@ -63,6 +63,8 @@ class User extends Authenticatable
 
     static $similar;
 
+    static $id;
+
     //set limit value
     static function limit($limit) 
     {
@@ -350,6 +352,8 @@ class User extends Authenticatable
                 'room_id' => $lastRoom
             ]
         ]);
+
+       
     }
 
     static function deleteFile($file) 
@@ -423,6 +427,17 @@ class User extends Authenticatable
         $messages = DB::select('SELECT * FROM `messages` where room_id IN (SELECT id from rooms where user_id=6 ) order by id desc limit 1');
         return $messages;
     }
+
+    public static function getFriend($id)
+    {
+        return User::withID($id)->with('friend.rooms.messages')->where(['users.id' => Auth::id()])->get()->toArray()[0]['friend'];
+    }
+
+    public static function withID($id)
+    {
+        static::$id = $id;
+        return new self;
+    }
     //relations
 
     public function pendingUsers()
@@ -433,7 +448,6 @@ class User extends Authenticatable
     public function friendrequest()
     {
         return $this->belongsToMany(User::class,'friend_request','friend_id','user_id');
-
     }
 
     public function message() 
@@ -441,32 +455,37 @@ class User extends Authenticatable
         return $this->hasMany(messages::class)->take(1);
     }
     
+    //get all friends of the Auth user
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id');
     }
 
+    //find if user is friend with auth user
+    public  function friend()
+    {
+        $id = static::$id;
+        return  $this->belongsToMany(User::class, 'friends','user_id', 'friend_id')->wherePivot('friend_id',$id);
+    }
+
     public function rooms()
     {
-        return $this->belongsToMany(Room::class,'user_room','user_id','room_id');
+        //get room of auth user
+        $rooms =   DB::table('user_room')->where('user_id',Auth::id())->select('room_id')->get()->toArray();
+        //flatten the array
+        $roomArray = array_column(json_decode(json_encode($rooms), true),'room_id');
+        return $this->belongsToMany(Room::class,'user_room','user_id','room_id')->whereIn('rooms.id',$roomArray);
     }
 
     public static function getInit()
     {
-        //get room of auth user
-        $rooms =   DB::table('user_room')->where('user_id',Auth::id())->select('room_id')->get()->toArray();
-
-        //flatten the array
-        $roomArray = array_column(json_decode(json_encode($rooms), true),'room_id');
-
         //get users friends and rooms belong to auth user with the last message 
-        $user = User::with(array('friends.rooms' => function($query) use ($roomArray){
-                    $query->whereIn('rooms.id',$roomArray);
-                },'friends.rooms.messages' => function($query) {
-                    $query->orderBy('created_at','Desc');
-                }))->whereId(Auth::id())->get()->toArray();
+        $user = User::with('friends.rooms.latestMessage')->whereId(Auth::id())->get()->toArray();
         return $user;
     }
+
+   
+
 
 
 

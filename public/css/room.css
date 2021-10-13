@@ -109,6 +109,7 @@
     position: absolute;
     bottom: 62px;
     transition: all .3s linear;
+    z-index: 10;
 }
 
 .room .emoji-container .upper {
@@ -165,7 +166,9 @@
     max-width: 300px;
     max-height: 300px;
     background-color: var(--bs-dark);
+    min-width: 150px;
 }
+
 
 .room .message .message-content img {
     max-width: 271x;
@@ -175,6 +178,17 @@
 .room .messages .message.active 
 {
     flex-direction: row-reverse;
+}
+
+.room .chat-loader {
+    position: fixed;
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    background: var(--bat-color);
+    z-index: 1;
+    left: 0;
 }
 
 @media screen and (max-width:1200px) {

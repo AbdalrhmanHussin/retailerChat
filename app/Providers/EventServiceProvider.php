@@ -21,7 +21,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\NewChatMessage' => [
             'App\Listeners\SendChatMessageNotification'
-        ]
+        ],
+        
     ];
 
     /**

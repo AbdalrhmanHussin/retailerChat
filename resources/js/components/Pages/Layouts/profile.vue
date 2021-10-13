@@ -92,12 +92,11 @@ export default ({
     methods: {
         update(col,val = {})
         {
-            console.log(val);
             this.$store.dispatch('modify',{update: col,value: val})
         },
         logout()
         {
-            axios.post('/user/logout').then(()=>{
+            axios.post('/auth/logout').then(()=>{
                 this.$router.push('/');
             })
         }

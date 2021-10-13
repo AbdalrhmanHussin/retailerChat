@@ -62,6 +62,10 @@ body {
     margin-left: auto;
 }
 
+.text-end {
+    text-align: end;
+}
+
 /*hover*/
 .hover-bat:hover {
     background-color: var(--dark-silver);

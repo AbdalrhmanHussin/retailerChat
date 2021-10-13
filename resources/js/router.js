@@ -42,10 +42,11 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiredAuth)) {
       if(store.state.auth == 0) 
       {
-        store.commit('loadingPage',true)
+        store.commit('loadingPage',true);
         store.dispatch('getUserData');
-      }
+      } 
       store.dispatch('Auth').then((res) =>{
+        console.log(res);
         if(res)
         {
           next()

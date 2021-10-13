@@ -53,7 +53,7 @@ export default ({
   methods: {
     login()
     {
-      axios.post('/user/login',this.form)
+      axios.post('auth/login',this.form)
         .then((res) => {
           if(res.data.message == true)
           {

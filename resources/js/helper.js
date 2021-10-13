@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default {
     methods: {
-        dateFormate({todayDate = false,ReqDate = '',reserveDistance=false,formate={day: true,month:true,year:true,hour:true,min:true}}) 
+        dateFormate({todayDate = false,ReqDate = '',reserveDistance=false,formate={day: true,month:true,year:true,hour:true,min:true,period:true}}) 
         {
             if(!todayDate && ReqDate.length == 0) throw 'Provide a date to formate'
             //today date
@@ -18,7 +18,7 @@ export default {
             let month   = dateReq.getMonth();
             let year    = dateReq.getFullYear();
             let period;
-
+            let isYesterday = false;
 
             
             let $date;
@@ -42,8 +42,10 @@ export default {
                 if(formate.hour)
                 {
                     rHour = dateReq.getHours();
-                    rHour = (rHour > 10) ? rHour - 10: rHour;
-                    rHour = (rHour < 10) ? '0'+rHour : rHour;
+                    if(period)
+                    {
+                        rHour = (rHour > 12) ? rHour - 12: rHour;
+                    }
                 }
 
                 if(formate.min)
@@ -54,14 +56,18 @@ export default {
 
                 if(formate.day)
                 {
-                    if(tDay !== day && !reserveDistance  && tMonth !== month) {
-                        rDay = day;    
+                    if(tDay !== day && !reserveDistance) {
+                        rDay = day;   
+                        if(day == tDay - 1)
+                        {
+                            isYesterday = true;
+                        } 
                     }
                 }
 
                 if(formate.month)
                 {
-                    if(tMonth !== month && !reserveDistance && tDay !== day) {
+                    if(!reserveDistance && tDay !== day) {
                         rMonth = month;
                     }
                 }
@@ -72,6 +78,7 @@ export default {
                         rYear = year;
                     }   
                 }
+            
                 return {
                     today: today,
                     hour: rHour,
@@ -81,7 +88,8 @@ export default {
                     month: rMonth,
                     monthLet: monthes[rMonth],
                     year: rYear,
-                    period: period
+                    period: period,
+                    yesterday: isYesterday
                 }
             }
 
@@ -92,11 +100,15 @@ export default {
         {
             let textToArray = text.split(' ');
             let exportedStr = '';
+            let link;
             classList = classList.join(' ')
 
             textToArray.forEach(text => {
                 if(new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(text)) {
-                    exportedStr += ` <a href="${text}" class="${classList}">${text}</a>`;
+                    if(text.indexOf('http://') == - 1) {
+                        link = 'http://' + text;
+                    } else link = text;
+                    exportedStr += ` <a href="${link}" class="${classList}" target="_blank">${text}</a>`;
                 } else {
                     exportedStr += ' '+text;
                 }
@@ -104,6 +116,8 @@ export default {
 
             return exportedStr;
 
-        }
+        },
+
+        
     }
 }

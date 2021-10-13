@@ -6,32 +6,27 @@
                     <img src="/images/system/logo.svg">
                 </a>
                 <ul class="menu d-flex flex-direction-column-lg  justify-content-center-md w-100">
-                    <router-link :to="{name:'profile'}" active-class="active" class="menu-item">
+                    <router-link :to="{name:'profile'}" active-class="active" class="menu-item d-flex justify-content-center align-items-center\">
                         <li class="p-2">
                             <i class="ri-user-3-line"></i>
                         </li>
                     </router-link>
-                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item">
+                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item d-flex justify-content-center align-items-center">
                         <li class="p-2">
                             <i class="ri-message-2-line"></i>
                         </li>
                     </router-link>
-                    <router-link :to="{name:'request'}" active-class="active" class="menu-item">
+                    <router-link :to="{name:'request'}" active-class="active" class="menu-item d-flex justify-content-center align-items-center">
                         <li class="p-2">
                             <i class="ri-contacts-line"></i>
                         </li>
                     </router-link>
-                    <router-link :to="{name:'myarea'}" active-class="active" class="menu-item">
-                        <li class="p-2">
-                            <i class="ri-settings-2-line"></i>
-                        </li>
-                    </router-link>
-                    <router-link :to="{name:'suggestions'}" active-class="active" class="menu-item">
+                    <router-link :to="{name:'suggestions'}" active-class="active" class="menu-item d-flex justify-content-center align-items-center">
                         <li class="p-2">
                             <i class="ri-global-line"></i>
                         </li>
                     </router-link>
-                    <div class="menu-item">
+                    <div class="menu-item d-flex justify-content-center align-items-center">
                         <li class="p-2" @click="lightmode" :class="{'active':light}">
                             <i class="ri-sun-line"></i>
                         </li>
@@ -138,16 +133,31 @@ export default ({
             }
         },
 
+        soundsNotification(notification)
+        {
+            let audio = new Audio();
+            if(notification == 'message')
+            {
+                audio.src = '/sounds/messages.mp3';
+                audio.play();
+            } 
+            else if (notification == 'fr') 
+            {
+                audio.src = '/sounds/friend_request.mp3';
+                audio.play();
+            }
+        },
         setUserDefault(id,user,addDefault)
         {
             axios.post(`user/${id}`).then((res)=>{
                 if(addDefault == 'status') user['status'] = res.data['payload']['status'];
             });
-        }
+        },
+
+       
     },
 
     created() {
-        
         if(this.user != undefined)
         {
          
@@ -160,9 +170,26 @@ export default ({
         });
 
         window.Echo.private(`chat.${this.user.id}`)
-            .listen('NewMessage', (e) => {
-                console.log(e);  
+        .listen('message', (e) => {
+            this.soundsNotification('message');
+            let user = this.users.find((x) => {
+                return x.id == e['message'].user_id;
             });
+            if(user['id'] > 0)
+            {
+                let message = {
+                    'type': e['message'].type,
+                    'content': e['message'].content,
+                    'readed': false,
+                    'user_id': e['message'].user_id,
+                    'created_at': Date.now()
+                }
+                user['rooms'][0]['latest_message'] = message;
+                user['rooms'][0]['messages'].push(message);
+            }
+        });
+
+       
         }
 
         //Presentation Channel
@@ -172,7 +199,6 @@ export default ({
             let checkActive = active.findIndex((x) => x.id == user.id);
             if(checkActive == -1)
             {
-               
                 user['status'] = 'offline';
             }
           });
@@ -183,7 +209,7 @@ export default ({
            if(joiner !== -1)
            {
                this.setUserDefault(user.id,this.users[joiner],'status');
-               this.users[joiner]['status'] = this.getUserDefault(user.id);
+               this.users[joiner]['status'] = this.setUserDefault(user.id,this.users[joiner],'status');
            }
 
         })
@@ -203,10 +229,7 @@ export default ({
             {
                 this.users[userget].status = user['user'].status
             }
-        })
-
-        
-
+        });
         this.resize()
     },
     
