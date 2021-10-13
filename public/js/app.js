@@ -21290,7 +21290,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.loading();
     this.resize();
     this.listDeclare();
-    this.$store.dispatch('getUserData'); //listen to typing events 
+    console.log(this.$store.state.users); //listen to typing events 
 
     Echo["private"]("chat.".concat(this.getUser.id)).listenForWhisper('typing', function (e) {
       var user = _this5.users.find(function (x) {
