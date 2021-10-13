@@ -454,7 +454,7 @@ class User extends Authenticatable
 
     public function message() 
     {
-        return $this->hasMany(messages::class)->take(1);
+        return $this->hasMany(Messages::class)->take(1);
     }
     
     //get all friends of the Auth user
