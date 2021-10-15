@@ -20427,7 +20427,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     forget: function forget() {
-      axios__WEBPACK_IMPORTED_MODULE_0___default().post('user/forget', this.form);
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('auth/forget', this.form);
       this.send = true;
     }
   }
@@ -20843,10 +20843,11 @@ __webpack_require__.r(__webpack_exports__);
     register: function register() {
       var _this = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_1___default().post('user/register', this.form).then(function (res) {
+      this.error = [];
+      axios__WEBPACK_IMPORTED_MODULE_1___default().post('auth/register', this.form).then(function (res) {
         if (res.data.message) {
           _this.$router.push({
-            name: 'chat'
+            name: 'myarea'
           });
         } else {
           var payload = res.data.payload;
@@ -20896,7 +20897,7 @@ __webpack_require__.r(__webpack_exports__);
     changePassword: function changePassword() {
       var _this = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/changepassword', {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/auth/changepassword', {
         password: this.form.password,
         password_confirmation: this.form.password_confirmation,
         email: this.email,
@@ -20917,12 +20918,10 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       console.log('worked');
-      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/user/checktoken', {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/auth/checktoken', {
         token: this.token,
         email: this.email
       }).then(function (res) {
-        console.log(res.data.message);
-
         if (res.data.message) {
           _this2.validToken = true;
         } else {
@@ -23945,6 +23944,11 @@ __webpack_require__.r(__webpack_exports__);
 var router = (0,vue_router__WEBPACK_IMPORTED_MODULE_14__.createRouter)({
   history: (0,vue_router__WEBPACK_IMPORTED_MODULE_14__.createWebHistory)(),
   routes: [{
+    path: '/chat',
+    redirect: {
+      name: 'myarea'
+    }
+  }, {
     path: '',
     component: _components_AppComponent_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
     children: [{
@@ -23973,7 +23977,7 @@ var router = (0,vue_router__WEBPACK_IMPORTED_MODULE_14__.createRouter)({
       component: _components_Pages_chatComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
       name: 'chat',
       children: [{
-        path: '',
+        path: '/myarea',
         component: _components_Pages_Layouts_userListLayout__WEBPACK_IMPORTED_MODULE_3__["default"],
         name: 'myarea',
         meta: {
@@ -24020,6 +24024,9 @@ var router = (0,vue_router__WEBPACK_IMPORTED_MODULE_14__.createRouter)({
         requiredAuth: true
       }
     }]
+  }, {
+    path: '/chat',
+    redirect: '/myarea'
   }]
 });
 router.beforeEach(function (to, from, next) {

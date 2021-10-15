@@ -44,7 +44,7 @@ export default ({
   methods: {
     changePassword()
     {
-      axios.post('/user/changepassword',{
+      axios.post('/auth/changepassword',{
           password: this.form.password,
           password_confirmation: this.form.password_confirmation,
           email: this.email,
@@ -64,11 +64,10 @@ export default ({
     checkToken()
     {
       console.log('worked');
-      axios.post('/user/checktoken',{
+      axios.post('/auth/checktoken',{
         token: this.token,
         email: this.email
       }).then((res) => {
-         console.log(res.data.message);
          if(res.data.message)
          {
             this.validToken = true;

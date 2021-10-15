@@ -149,8 +149,11 @@ class User extends Authenticatable
                 'password' => Hash::make(self::$values['password'])
             ]);
 
-            Auth::attempt($user->only(['email','password']));
-
+            $userData = [
+                'email' => $user->email,
+                'password' => self::$values['password']
+            ];
+            Auth::attempt($userData,true);
             return result::repsonse(true);
         } else 
             return self::$validate;

@@ -61,10 +61,11 @@ export default ({
   methods: {
     register()
     {
-      axios.post('user/register',this.form).then((res)=>{
+      this.error = [];
+      axios.post('auth/register',this.form).then((res)=>{
         if(res.data.message)
         {
-          this.$router.push({name:'chat'});
+          this.$router.push({name:'myarea'});
         }
         else 
         {

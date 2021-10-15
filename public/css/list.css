@@ -208,4 +208,9 @@
         height: 64vh;
         margin-bottom: 75px;
     }
+
+    .side-menu li {
+        padding: 0 !important;
+        height: 100%;
+    }
 }

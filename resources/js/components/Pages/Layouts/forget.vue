@@ -30,7 +30,7 @@ export default ({
   methods: {
     forget()
     {
-      axios.post('user/forget',this.form)
+      axios.post('auth/forget',this.form)
       this.send = true;
     }
   }

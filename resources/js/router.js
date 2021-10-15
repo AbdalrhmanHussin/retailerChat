@@ -18,6 +18,7 @@ import request from './components/Pages/Layouts/myrequest';
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/chat', redirect: { name: 'myarea' }},
     {path:'',component:AppComponent,children:[
         {path:'',component:AuthComponent,children:[
           {path:'',component:login,name:'login'},
@@ -26,15 +27,16 @@ const router = createRouter({
           {path:'/reset/:token/:email',name:'reset',component:reset,props:true}
         ]},
         {path:'/chat',component:chatComponent,name:'chat',children: [
-          {path:'',component:userList,name:'myarea',meta: {requiredAuth: true}},
+          {path:'/myarea',component:userList,name:'myarea',meta: {requiredAuth: true}},
           {path:'/friends',component:friends,name:'friends',children: [
             {path:'/suggestions',component:suggestions,name:'suggestions',meta: {requiredAuth: true}},
             {path:'/pending',component:pending,name:'pending',meta: {requiredAuth: true}}
           ],meta: {requiredAuth: true}},
           {path:'/request',component:request,name:'request',meta: {requiredAuth: true}},
           {path:'/profile',component:profile,name:'profile',meta: {requiredAuth:true}}
-        ],meta: {requiredAuth: true}}
+        ],meta: {requiredAuth: true}},
     ]},
+    { path: '/chat', redirect: '/myarea' }
   ],
 });
 

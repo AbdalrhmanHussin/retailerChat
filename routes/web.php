@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\DB;
 Route::post('/api',[UserController::class,'authorized']);
 
 //Registerations system routes
+Route::post('auth/changepassword',[UserController::class,'changepassword']);
+
 Route::group(['prefix'=>'auth'],function(){
     Route::post('/login',[UserController::class,'login']);
     Route::post('/register',[UserController::class,'register']);
@@ -35,9 +37,11 @@ Route::group(['prefix'=>'auth'],function(){
     Route::get('/authorized',[UserController::class,'authorized']);
     //get specific user
     Route::post('/{user}',[UserController::class,'find']);
+    //password reset 
     Route::get('/',[UserController::class,'Users']);   
 });
 
+//Messaging system routes
 Route::group(['middleware' => 'auth','prefix'=> 'message'],function(){
     Route::post('/send',[MessagesController::class,'send']);
     Route::post('/room',[MessagesController::class,'render']);
@@ -55,13 +59,6 @@ Route::group(['middleware' => 'auth','prefix'=> 'user'],function(){
     Route::post('submitrequest',[UserController::class,'submitRequest']);
     Route::post('/update',[UserController::class,'modifyData']);
 });
-
-
-
-Route::group(['prefix' => 'user'],function(){
-    
-});
-
 
 //socialite
 Route::get('/socialite/{drive}',[UserController::class,'socialite']);
